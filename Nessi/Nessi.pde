@@ -21,7 +21,6 @@ void draw() {
   background(0);
   drawGrid(1);
   p.show();
-  noLoop();
 }
 
 void drawGrid(int level) {
@@ -58,8 +57,8 @@ void drawGrid(int level) {
 }
 
 void keyPressed() {
-  if (keyCode == UP || keyCode == 'w') p.move("UP");
-  if (keyCode == DOWN) p.move("DOWN");
-  if (keyCode == LEFT) p.move("LEFT");
-  if (keyCode == RIGHT) p.move("RIGHT");
+  if (keyCode == UP || keyCode == 'W') p.move("UP");
+  if (keyCode == DOWN || keyCode == 'S') p.move("DOWN");
+  if (keyCode == LEFT || keyCode == 'A') p.move("LEFT");
+  if (keyCode == RIGHT || keyCode == 'D') p.move("RIGHT");
 }
