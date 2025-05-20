@@ -5,8 +5,19 @@ class Player {
 
   Player() {
     w = 100;
-    y = 100;
-    x = xMidPosition - (w/2);
-    y = yMidPosition - (h/2);
+    h = 100;
+    x = width/2 - (w/2);
+    y = height/2 - (h/2);
+  }
+
+  void show() {
+    circle(x, y, w);
+  }
+
+  void move(String direction) {
+    if (direction.equals("UP")    ) y -= gridCellSize;
+    if (direction.equals("DOWN")  ) y += gridCellSize;
+    if (direction.equals("LEFT")  ) x -= gridCellSize;
+    if (direction.equals("RIGHT") ) x += gridCellSize;
   }
 }
