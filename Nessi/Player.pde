@@ -6,8 +6,8 @@ class Player {
   Player() {
     w = 100;
     h = 100;
-    x = width/2 - (w/2);
-    y = height/2 - (h/2);
+    x = width/2;
+    y = height/2;
   }
 
   void show() {

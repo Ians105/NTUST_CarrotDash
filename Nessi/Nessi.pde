@@ -10,11 +10,11 @@ int gameState = GAME_HOME;
 
 int[] roundStateList;
 ArrayList<PImage> bgImageList;
-Player player;
+Player p;
 
 void setup() {
   size(1600, 900);
-  player p;
+  p = new Player();
 }
 
 void draw() {
@@ -55,5 +55,11 @@ void drawGrid(int level) {
     }
   }
   popMatrix();
-  
+}
+
+void keyPressed() {
+  if (keyCode == UP || keyCode == 'w') p.move("UP");
+  if (keyCode == DOWN) p.move("DOWN");
+  if (keyCode == LEFT) p.move("LEFT");
+  if (keyCode == RIGHT) p.move("RIGHT");
 }
