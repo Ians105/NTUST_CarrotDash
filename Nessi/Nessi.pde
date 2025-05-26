@@ -1,12 +1,22 @@
+// Game modes
 final int GAME_HOME = 0;
 final int GAME_RUN = 1;
 final int GAME_WIN = 2;
 final int GAME_LOSE = 3;
-final int SPEED = 0;
+
+// Speed for grid like movement
+final int SPEED = 100;
+
+PImage[] playerSprites = new PImage[6];
+
+// Grid variables
 int gridSize = 0;
 int gridCellSize = 100;
 
-int gameState = GAME_HOME;
+//int gameState = GAME_HOME;
+int gameState = GAME_RUN;
+
+int level = 1;
 
 int[] roundStateList;
 ArrayList<PImage> bgImageList;
@@ -14,13 +24,21 @@ Player p;
 
 void setup() {
   size(1600, 900);
+  loadSprites();
   p = new Player();
 }
 
 void draw() {
-  background(0);
-  drawGrid(1);
-  p.show();
+  switch(gameState) {
+  case 1:
+    background(0);
+    drawGrid(1);
+    p.show();
+    break;
+  case 2:
+  case 3:
+  default:
+  }
 }
 
 void drawGrid(int level) {
@@ -61,4 +79,19 @@ void keyPressed() {
   if (keyCode == DOWN || keyCode == 'S') p.move("DOWN");
   if (keyCode == LEFT || keyCode == 'A') p.move("LEFT");
   if (keyCode == RIGHT || keyCode == 'D') p.move("RIGHT");
+}
+
+void loadSprites() {
+  /*
+  playerSprites:
+    0 - default,
+    1 - up,
+    2 - right,
+    3 - down,
+    4 - left,
+    5 - defeated
+  */
+  for (int i = 0; i<6; i++) {
+    playerSprites[i] = loadImage("assets/player_"+i+".png");
+  }
 }
