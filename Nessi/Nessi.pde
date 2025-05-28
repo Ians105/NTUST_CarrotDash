@@ -77,7 +77,7 @@ void draw() {
     }
 
     int survivalTime = millis() - gameStartTime;
-    if (survivalTime >= 90000) {
+    if (survivalTime >= 60000) {
       gameState = GAME_WIN;
     }
 
@@ -97,7 +97,7 @@ void draw() {
     break;
 
   case GAME_HOME:
-    background(50);
+    background(0);
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(48);
