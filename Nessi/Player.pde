@@ -3,6 +3,19 @@ class Player {
   int spriteIndex = 0;
   boolean isAlive=true;
 
+  // flip status
+  boolean isFlipped = false;
+  int flipStartTime = 0;
+  int flipDuration = 5000;
+
+  // stat status
+  boolean isInvincible = false;
+  int invincibleStartTime = 0;
+  int invincibleDuration = 5000;
+
+  int lastGridX = -1;
+  int lastGridY = -1;
+
   int lastMoveTime = 0;
   String lastMoveDirection = "";
 
@@ -22,14 +35,36 @@ class Player {
     // Debug mode
     //circle(x, y, w);
 
+    // hint on last move location
+    fill(255, 255, 255, 100);
+    noStroke();
+    if (lastGridX != -1 && lastGridY != -1) {
+      rect(lastGridX, lastGridY, w, h);
+    }
+
     image(playerSprites[spriteIndex], x, y);
+
+    // check if the potion and flip is ended
+    if (isFlipped && millis() - flipStartTime > flipDuration) {
+      isFlipped = false;
+    }
+    if (isInvincible && millis() - invincibleStartTime > invincibleDuration) {
+      isInvincible = false;
+    }
   }
 
   void move(String direction) {
     if (!isAlive) return;
-    
+
+    if (isFlipped) {
+      if (direction.equals("UP")) direction = "DOWN";
+      else if (direction.equals("DOWN")) direction = "UP";
+      else if (direction.equals("LEFT")) direction = "RIGHT";
+      else if (direction.equals("RIGHT")) direction = "LEFT";
+    }
+
     boolean repeatedDirection = direction.equals(lastMoveDirection);
-    
+
     if (repeatedDirection /*|| touchedEnemy*/) {
       die();
       return;
@@ -59,5 +94,15 @@ class Player {
   void die() {
     isAlive = false;
     spriteIndex = 5;
+  }
+
+  void activateFlip() {
+    isFlipped = true;
+    flipStartTime = millis();
+  }
+
+  void activateStar() {
+    isInvincible = true;
+    invincibleStartTime = millis();
   }
 }
