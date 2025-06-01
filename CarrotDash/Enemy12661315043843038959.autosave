@@ -20,18 +20,18 @@ class Enemy {
     // Load sprites based on type
     loadSpritesForType(type);
     
-    // Set different speeds for different enemy types - 大幅加速動畫
+    // Set different speeds for different enemy types
     if (type.equals("pest")) {
       speed = 2.0;
-      animSpeed = 120; // 減少：300 → 120
+      animSpeed = 300;
     }
     else if (type.equals("bird")) {
       speed = 1.5;
-      animSpeed = 80;  // 減少：150 → 80
+      animSpeed = 150;
     }
     else {
       speed = 1.5; // default
-      animSpeed = 100; // 減少：250 → 100
+      animSpeed = 250;
     }
     
     // Determine movement direction based on spawn position

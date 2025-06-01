@@ -56,15 +56,19 @@ void setup() {
 void draw() {
   switch(gameState) {
     case GAME_RUN:
-      // Show background image - 確保背景正確顯示
+      // Show background image
       if (backgroundImage != null) {
-        imageMode(CORNER);
         image(backgroundImage, 0, 0, width, height);
       } else {
-        background(50, 150, 50); // 綠色後備背景
+        background(50, 150, 50);
       }
       
       if (grid != null) grid.show();
+
+      // Generate gridIndicators (once at game start)
+      if (gridIndicators.size() == 0) {
+        generateGridIndicators();
+      }
 
       // Spawn enemies every interval - restrict enemy types by level
       if (millis() - lastEnemySpawnTime > enemySpawnInterval) {
@@ -72,13 +76,13 @@ void draw() {
         
         // Define enemy types based on level
         if (level == 1) {
-          enemyTypes = new String[]{"pest"}; // Level 1: only pest (gopher will be handled by GridIndicator)
+          enemyTypes = new String[]{"pest"}; 
         } else if (level == 2) {
-          enemyTypes = new String[]{"pest", "bird"}; // Level 2: pest and bird (gopher still in GridIndicator)
+          enemyTypes = new String[]{"pest", "bird"}; 
         } else if (level == 3) {
-          enemyTypes = new String[]{"pest", "bird"}; // Level 3: pest and bird (gopher still in GridIndicator)
+          enemyTypes = new String[]{"pest", "bird"}; 
         } else {
-          enemyTypes = new String[]{"pest"}; // Default fallback
+          enemyTypes = new String[]{"pest"};
         }
         
         String randomType = enemyTypes[(int)random(enemyTypes.length)];
@@ -115,13 +119,13 @@ void draw() {
         
         // Define item types based on level
         if (level == 1) {
-          itemTypes = new String[]{}; // Level 1: no items (gopher effect comes from GridIndicator)
+          itemTypes = new String[]{}; 
         } else if (level == 2) {
-          itemTypes = new String[]{}; // Level 2: no items yet (gopher effect still from GridIndicator)
+          itemTypes = new String[]{};
         } else if (level == 3) {
-          itemTypes = new String[]{"flip", "star"}; // Level 3: scarecrow(star) and poisonmushroom(flip)
+          itemTypes = new String[]{"flip", "star"}; 
         } else {
-          itemTypes = new String[]{}; // Default: no items
+          itemTypes = new String[]{};
         }
         
         // Only spawn items if there are item types available for this level
@@ -134,8 +138,8 @@ void draw() {
           if (availableCells.size() > 0) {
             // Randomly select an available cell
             PVector selectedCell = availableCells.get((int)random(availableCells.size()));
-            int playableRow = (int)selectedCell.x; // Playable area relative coordinates
-            int playableCol = (int)selectedCell.y; // Playable area relative coordinates
+            int playableRow = (int)selectedCell.x; 
+            int playableCol = (int)selectedCell.y; 
             
             // Create item using playable area coordinates
             items.add(new Item(playableRow, playableCol, randomType));
@@ -146,7 +150,7 @@ void draw() {
         lastItemSpawnTime = millis();
       }
 
-      // Show player (remove p.update() call)
+      // Show player
       if (p != null) p.show();
       
       // Update enemies
@@ -196,20 +200,14 @@ void draw() {
         }
       }
       
-      // Update and show gridIndicators (dynamic gophers)
-      for (int i = gridIndicators.size() - 1; i >= 0; i--) {
-        GridIndicator indicator = gridIndicators.get(i);
+      // Update and show gridIndicators (gopher effect available in all levels)
+      for (GridIndicator indicator : gridIndicators) {
         indicator.update();
         indicator.show();
 
         // GridIndicator collision with player
         if (indicator.touches(p)) {
           indicator.applyEffect(p);
-        }
-        
-        // Remove inactive gophers that have expired
-        if (!indicator.isActive) {
-          gridIndicators.remove(i);
         }
       }
 
@@ -219,11 +217,11 @@ void draw() {
         gameState = GAME_WIN;
       }
 
-      // Enhanced UI with semi-transparent background for readability
+      // UI
       fill(0, 150);
       noStroke();
-      rectMode(CORNER); // Ensure UI uses correct rectangle mode
-      rect(10, 10, 300, 240); // Increased height to show level features
+      rectMode(CORNER); 
+      rect(10, 10, 300, 240); 
       
       fill(255);
       textSize(32);
@@ -251,7 +249,7 @@ void draw() {
         text("• Poison Mushroom (flip)", 20, 200);
       }
       
-      // Show player status with colors
+      // Show player status
       fill(255);
       if (p.isFlipped) {
         fill(255, 0, 255);
@@ -287,19 +285,11 @@ void draw() {
       // Clear background first
       background(0);
       
-      // Show background image - 修正背景顯示
+      // Show background image - fix background display
       if (backgroundImage != null) {
-        // 確保背景圖片填滿整個螢幕
+        // Ensure background image fills entire screen
         imageMode(CORNER);
         image(backgroundImage, 0, 0, width, height);
-      } else {
-        // 後備背景漸層
-        for (int i = 0; i <= height; i++) {
-          float inter = map(i, 0, height, 0, 1);
-          color c = lerpColor(color(50, 150, 50), color(20, 80, 20), inter);
-          stroke(c);
-          line(0, i, width, i);
-        }
       }
       
       // Show title image with proper scaling and positioning
@@ -389,7 +379,7 @@ void resetGame() {
 }
 
 void startGame() {
-  println("Starting game with level: " + level);
+  println("Starting game with level: " + level); // Debug
   gameState = GAME_RUN;
   
   // Recreate grid and player
@@ -398,7 +388,7 @@ void startGame() {
   
   enemies.clear();
   items.clear();
-  gridIndicators.clear(); // Clear all gophers
+  gridIndicators.clear(); // Clear gridIndicators
   
   lastEnemySpawnTime = millis();
   lastItemSpawnTime = millis();
@@ -437,49 +427,16 @@ void loadSprites() {
     playerSprites[4] = loadImage("data/carrotLeft.png");    // left
     playerSprites[5] = loadImage("data/carrotMain.png");    // defeated
 
-    // Load UI images - 修正背景圖片文件名
+    // Load UI images
     titleImage = loadImage("data/Title.PNG");
-    backgroundImage = loadImage("data/background.png"); // 修正：改為 background.png
+    backgroundImage = loadImage("data/startBG.png");
     
-    // 檢查背景圖片是否成功加載
-    if (backgroundImage == null) {
-      println("Warning: background.png not found, trying other variations...");
-      // 嘗試其他可能的文件名
-      backgroundImage = loadImage("data/background.PNG");
-      if (backgroundImage == null) {
-        backgroundImage = loadImage("data/startBG.png");
-      }
-      if (backgroundImage == null) {
-        backgroundImage = loadImage("data/startBG.PNG");
-      }
-    }
-    
-    if (backgroundImage != null) {
-      println("Background image loaded successfully: " + backgroundImage.width + "x" + backgroundImage.height);
-    } else {
-      println("Error: Background image not found! Please check if background.png exists in data folder.");
-    }
-    
-    // 檢查 player sprites 是否加載成功
-    for (int i = 0; i < playerSprites.length; i++) {
-      if (playerSprites[i] != null) {
-        println("Player sprite " + i + " loaded successfully");
-      } else {
-        println("Warning: Player sprite " + i + " failed to load");
-      }
-    }
-    
-    println("All sprites loading completed!");
+    println("All sprites loaded successfully!");
   } catch (Exception e) {
     println("Error loading sprites: " + e.getMessage());
     // Create blank images as fallback
     for (int i = 0; i < playerSprites.length; i++) {
       playerSprites[i] = createImage(100, 100, RGB);
-      playerSprites[i].loadPixels();
-      for (int j = 0; j < playerSprites[i].pixels.length; j++) {
-        playerSprites[i].pixels[j] = color(255, 140, 0); // 橙色後備
-      }
-      playerSprites[i].updatePixels();
     }
   }
 }
@@ -504,6 +461,32 @@ void loadGameResult(String message) {
   text(message, width/2, height/2 - 40);
   textSize(24);
   text("Press R to restart", width/2, height/2 + 20);
+}
+
+// New method: generate all gridIndicators
+void generateGridIndicators() {
+  if (grid == null) return;
+  
+  gridIndicators.clear();
+  
+  println("=== Generating GridIndicators ===");
+  println("Grid size: " + grid.rows + "x" + grid.cols);
+  println("Playable size: " + grid.playableRows + "x" + grid.playableCols);
+  
+  // Generate gridIndicators at all border positions
+  for (int row = 0; row < grid.rows; row++) {
+    for (int col = 0; col < grid.cols; col++) {
+      if (grid.isGridIndicatorCell(row, col)) {
+        GridIndicator indicator = new GridIndicator(row, col);
+        gridIndicators.add(indicator);
+        println("Generated GridIndicator at (" + row + ", " + col + ")");
+      }
+    }
+  }
+  
+  println("Total GridIndicators generated: " + gridIndicators.size());
+  println("Expected GridIndicators: " + (2 * grid.rows + 2 * grid.cols - 4)); // Total border cells
+  println("===============================");
 }
 
 // Fix getAvailableGridCells method

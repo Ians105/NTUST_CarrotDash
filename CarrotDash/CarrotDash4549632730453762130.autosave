@@ -56,15 +56,19 @@ void setup() {
 void draw() {
   switch(gameState) {
     case GAME_RUN:
-      // Show background image - 確保背景正確顯示
+      // Show background image
       if (backgroundImage != null) {
-        imageMode(CORNER);
         image(backgroundImage, 0, 0, width, height);
       } else {
-        background(50, 150, 50); // 綠色後備背景
+        background(50, 150, 50);
       }
       
       if (grid != null) grid.show();
+
+      // 移除固定的 gridIndicators 生成
+      // if (gridIndicators.size() == 0) {
+      //   generateGridIndicators();
+      // }
 
       // Spawn enemies every interval - restrict enemy types by level
       if (millis() - lastEnemySpawnTime > enemySpawnInterval) {
@@ -287,19 +291,11 @@ void draw() {
       // Clear background first
       background(0);
       
-      // Show background image - 修正背景顯示
+      // Show background image - fix background display
       if (backgroundImage != null) {
-        // 確保背景圖片填滿整個螢幕
+        // Ensure background image fills entire screen
         imageMode(CORNER);
         image(backgroundImage, 0, 0, width, height);
-      } else {
-        // 後備背景漸層
-        for (int i = 0; i <= height; i++) {
-          float inter = map(i, 0, height, 0, 1);
-          color c = lerpColor(color(50, 150, 50), color(20, 80, 20), inter);
-          stroke(c);
-          line(0, i, width, i);
-        }
       }
       
       // Show title image with proper scaling and positioning
@@ -437,49 +433,16 @@ void loadSprites() {
     playerSprites[4] = loadImage("data/carrotLeft.png");    // left
     playerSprites[5] = loadImage("data/carrotMain.png");    // defeated
 
-    // Load UI images - 修正背景圖片文件名
+    // Load UI images
     titleImage = loadImage("data/Title.PNG");
-    backgroundImage = loadImage("data/background.png"); // 修正：改為 background.png
+    backgroundImage = loadImage("data/background.png");
     
-    // 檢查背景圖片是否成功加載
-    if (backgroundImage == null) {
-      println("Warning: background.png not found, trying other variations...");
-      // 嘗試其他可能的文件名
-      backgroundImage = loadImage("data/background.PNG");
-      if (backgroundImage == null) {
-        backgroundImage = loadImage("data/startBG.png");
-      }
-      if (backgroundImage == null) {
-        backgroundImage = loadImage("data/startBG.PNG");
-      }
-    }
-    
-    if (backgroundImage != null) {
-      println("Background image loaded successfully: " + backgroundImage.width + "x" + backgroundImage.height);
-    } else {
-      println("Error: Background image not found! Please check if background.png exists in data folder.");
-    }
-    
-    // 檢查 player sprites 是否加載成功
-    for (int i = 0; i < playerSprites.length; i++) {
-      if (playerSprites[i] != null) {
-        println("Player sprite " + i + " loaded successfully");
-      } else {
-        println("Warning: Player sprite " + i + " failed to load");
-      }
-    }
-    
-    println("All sprites loading completed!");
+    println("All sprites loaded successfully!");
   } catch (Exception e) {
     println("Error loading sprites: " + e.getMessage());
     // Create blank images as fallback
     for (int i = 0; i < playerSprites.length; i++) {
       playerSprites[i] = createImage(100, 100, RGB);
-      playerSprites[i].loadPixels();
-      for (int j = 0; j < playerSprites[i].pixels.length; j++) {
-        playerSprites[i].pixels[j] = color(255, 140, 0); // 橙色後備
-      }
-      playerSprites[i].updatePixels();
     }
   }
 }
@@ -505,6 +468,13 @@ void loadGameResult(String message) {
   textSize(24);
   text("Press R to restart", width/2, height/2 + 20);
 }
+
+// 移除或註解掉 generateGridIndicators 方法
+/*
+void generateGridIndicators() {
+  // 不再需要這個方法
+}
+*/
 
 // Fix getAvailableGridCells method
 ArrayList<PVector> getAvailableGridCells() {
