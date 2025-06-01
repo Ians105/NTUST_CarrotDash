@@ -10,8 +10,7 @@ class Item {
   // Animation variables
   int animFrame = 0;
   int lastAnimTime = 0;
-  int animSpeed = 120; // 大幅減少：300 → 120
-  float rotationAngle = 0;
+  int animSpeed = 120;
   float bobbingOffset = 0;
 
   Item(float startX, float startY, String type) {
@@ -114,13 +113,13 @@ class Item {
   }
 
   void update() {
-    // Floating animation (visual effect only, doesn't change actual position)
-    bobbingOffset = sin(frameCount * 0.08) * 8; // 加速浮動動畫：0.05 → 0.08
+    // 移除：浮動動畫 - 保持靜態位置
+    // bobbingOffset = sin(frameCount * 0.08) * 8; 
     
-    // Rotation animation
-    rotationAngle += 0.03; // 加速旋轉：0.02 → 0.03
+    // 移除：旋轉動畫
+    // rotationAngle += 0.03;
     
-    // Frame animation
+    // Frame animation - 保留圖片動畫切換
     if (millis() - lastAnimTime > animSpeed) {
       animFrame = (animFrame + 1) % sprites.length;
       lastAnimTime = millis();
@@ -130,25 +129,27 @@ class Item {
   void show() {
     if (!collected && sprites != null && animFrame < sprites.length) {
       pushMatrix();
-      translate(x + w/2, y + h/2 + bobbingOffset);
-      rotate(rotationAngle * 0.5); // Gentle rotation
+      translate(x + w/2, y + h/2); // 移除：+ bobbingOffset
+      // 移除：rotate(rotationAngle * 0.5);
       
-      // Add glow effect based on type
+      // 移除：所有光暈效果
+      /*
       if (type.equals("star")) {
         // star/scarecrow - golden glow (beneficial item)
-        fill(255, 255, 0, 100 + 50 * sin(frameCount * 0.15)); // 加速光暈：0.1 → 0.15
+        fill(255, 255, 0, 100 + 50 * sin(frameCount * 0.15));
         noStroke();
         ellipse(0, 0, w + 20, h + 20);
       } else if (type.equals("flip")) {
         // flip/mushroom - purple glow (harmful item)
-        fill(255, 0, 255, 100 + 50 * sin(frameCount * 0.15)); // 加速光暈：0.1 → 0.15
+        fill(255, 0, 255, 100 + 50 * sin(frameCount * 0.15));
         noStroke();
         ellipse(0, 0, w + 15, h + 15);
       }
+      */
       
-      // Scale pulsing effect
-      float pulseScale = 1.0 + sin(frameCount * 0.15) * 0.1; // 加速脈衝：0.1 → 0.15
-      scale(pulseScale);
+      // 移除：脈衝縮放效果
+      // float pulseScale = 1.0 + sin(frameCount * 0.15) * 0.1;
+      // scale(pulseScale);
       
       imageMode(CENTER);
       if (sprites[animFrame] != null) {

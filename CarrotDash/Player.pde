@@ -37,9 +37,9 @@ class Player {
       int absoluteRow = centerRow + 1;  // +1 because border occupies row 0
       int absoluteCol = centerCol + 1;  // +1 because border occupies column 0
       
-      // Calculate pixel position
-      x = grid.originX + absoluteCol * grid.cellSize;
-      y = grid.originY + absoluteRow * grid.cellSize;
+      // Calculate pixel position - 置中到格子中心
+      x = grid.originX + absoluteCol * grid.cellSize + (grid.cellSize - w) / 2;
+      y = grid.originY + absoluteRow * grid.cellSize + (grid.cellSize - h) / 2;
       
       println("=== Player Initialization ===");
       println("Playable area center: (" + centerRow + ", " + centerCol + ")");
@@ -73,9 +73,9 @@ class Player {
     absoluteGridCol = playableGridCol + 1;
     absoluteGridRow = playableGridRow + 1;
     
-    // Set pixel position
-    x = grid.originX + absoluteGridCol * grid.cellSize;
-    y = grid.originY + absoluteGridRow * grid.cellSize;
+    // Set pixel position - 置中到格子中心
+    x = grid.originX + absoluteGridCol * grid.cellSize + (grid.cellSize - w) / 2;
+    y = grid.originY + absoluteGridRow * grid.cellSize + (grid.cellSize - h) / 2;
   }
 
   void show() {
@@ -197,9 +197,9 @@ class Player {
       }
       
       if (!hasActiveGopher) {
-        // Calculate new pixel position
-        float newX = grid.originX + newAbsoluteGridCol * grid.cellSize;
-        float newY = grid.originY + newAbsoluteGridRow * grid.cellSize;
+        // Calculate new pixel position - 置中到格子中心
+        float newX = grid.originX + newAbsoluteGridCol * grid.cellSize + (grid.cellSize - w) / 2;
+        float newY = grid.originY + newAbsoluteGridRow * grid.cellSize + (grid.cellSize - h) / 2;
         
         x = newX;
         y = newY;
@@ -329,13 +329,17 @@ class Player {
     }
   }
 
-  // Helper method to get current playable grid position (0-based)
+  // Helper method to get current grid position based on centered object
   PVector getCurrentGridPosition() {
     if (grid == null) return new PVector(-1, -1);
     
+    // Calculate position based on object center
+    float centerX = x + w/2;
+    float centerY = y + h/2;
+    
     // Calculate absolute position
-    int absoluteGridCol = (int)((x - grid.originX) / grid.cellSize);
-    int absoluteGridRow = (int)((y - grid.originY) / grid.cellSize);
+    int absoluteGridCol = (int)((centerX - grid.originX) / grid.cellSize);
+    int absoluteGridRow = (int)((centerY - grid.originY) / grid.cellSize);
     
     // Convert to playable area coordinates (subtract border offset)
     int playableGridCol = absoluteGridCol - 1;
@@ -348,8 +352,12 @@ class Player {
   PVector getAbsoluteGridPosition() {
     if (grid == null) return new PVector(-1, -1);
     
-    int gridCol = (int)((x - grid.originX) / grid.cellSize);
-    int gridRow = (int)((y - grid.originY) / grid.cellSize);
+    // Calculate position based on object center
+    float centerX = x + w/2;
+    float centerY = y + h/2;
+    
+    int gridCol = (int)((centerX - grid.originX) / grid.cellSize);
+    int gridRow = (int)((centerY - grid.originY) / grid.cellSize);
     
     return new PVector(gridRow, gridCol);
   }

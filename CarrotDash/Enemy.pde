@@ -11,8 +11,6 @@ class Enemy {
   int animSpeed = 200; // milliseconds per frame
 
   Enemy(float startX, float startY, String type) {
-    this.x = startX;
-    this.y = startY;
     this.type = type;
     this.w = 100;
     this.h = 100;
@@ -34,13 +32,34 @@ class Enemy {
       animSpeed = 100; // 減少：250 → 100
     }
     
+    // 修正：只在垂直方向置中到格子，水平位置保持原始
+    if (grid != null) {
+      // 水平位置：保持原始 startX
+      this.x = startX;
+      
+      // 垂直位置：對齊到最接近的格子中心
+      int spawnRow = round((startY - grid.originY) / grid.cellSize);
+      spawnRow = constrain(spawnRow, 1, grid.playableRows); // 限制在可玩區域的行
+      
+      // 計算垂直置中位置
+      this.y = grid.originY + spawnRow * grid.cellSize + (grid.cellSize - h) / 2;
+      
+      println("Enemy " + type + " vertically aligned to grid - Row: " + spawnRow);
+      println("  Original spawn: (" + startX + ", " + startY + ")");
+      println("  Final position: (" + this.x + ", " + this.y + ")");
+    } else {
+      // 如果沒有網格，使用原始位置
+      this.x = startX;
+      this.y = startY;
+    }
+    
     // Determine movement direction based on spawn position
     setMovementDirection(startX);
     
     println("Enemy " + type + " created at (" + x + ", " + y + ") velocityX: " + velocityX);
   }
   
-  void setMovementDirection(float startX) {
+  void setMovementDirection(float originalStartX) {
     if (grid == null) {
       // If no grid, default to moving right
       velocityX = speed;
@@ -50,7 +69,8 @@ class Enemy {
     // Calculate grid center position
     float gridCenterX = grid.originX + (grid.cols * grid.cellSize) / 2;
     
-    if (startX < gridCenterX) {
+    // 使用原始生成位置來判斷方向
+    if (originalStartX < gridCenterX) {
       // Spawn from left, move right
       velocityX = speed;
       println("Enemy spawned on LEFT, moving RIGHT with velocity: " + velocityX);
@@ -107,7 +127,7 @@ class Enemy {
       lastAnimTime = millis();
     }
     
-    // Movement logic based on enemy type
+    // Movement logic based on enemy type - 恢復原來的移動方式
     if (type.equals("pest")) {
       // pest simple horizontal linear movement
       x += velocityX;
@@ -120,7 +140,7 @@ class Enemy {
     }
   }
   
-  // New: bird special movement logic
+  // 修改：Bird 移動邏輯（保持原來的傳送但垂直置中）
   void updateBirdMovement() {
     if (grid == null) {
       x += velocityX;
@@ -131,29 +151,28 @@ class Enemy {
     float gridLeft = grid.originX;
     float gridRight = grid.originX + grid.cols * grid.cellSize;
     
-    // Move bird
-    x += velocityX;
-    
-    // Check if hitting Grid boundaries
+    // Check if hitting Grid boundaries and handle teleportation
     if (velocityX > 0) {
       // Moving right, check if hitting left boundary
       if (x + w >= gridLeft && x <= gridLeft) {
-        // Teleport to inside Grid on right side
-        x = gridRight - w - 20; // A bit inside right boundary
+        // Teleport to inside Grid on right side - 但保持水平連續位置
+        x = gridRight - w - 20; // 在右側邊界內側一點
         velocityX = -speed; // Change to moving left
-        
-        // Remove: no longer select new row, keep same Y coordinate
         println("Bird teleported to RIGHT side, now moving LEFT");
+      } else {
+        // Normal movement
+        x += velocityX;
       }
     } else if (velocityX < 0) {
-      // Moving left, check if hitting right boundary
+      // Moving left, check if hitting right boundary  
       if (x <= gridRight && x + w >= gridRight) {
-        // Teleport to inside Grid on left side
-        x = gridLeft + 20; // A bit inside left boundary
+        // Teleport to inside Grid on left side - 但保持水平連續位置
+        x = gridLeft + 20; // 在左側邊界內側一點
         velocityX = speed; // Change to moving right
-        
-        // Remove: no longer select new row, keep same Y coordinate
         println("Bird teleported to LEFT side, now moving RIGHT");
+      } else {
+        // Normal movement
+        x += velocityX;
       }
     }
   }
@@ -177,7 +196,7 @@ class Enemy {
     
     // Add visual effects based on type
     if (type.equals("bird")) {
-      // Bird has slight transparency and floating effect (remove flicker)
+      // Bird has slight transparency and floating effect
       tint(255, 230);
       // Slight up-down floating
       translate(0, sin(frameCount * 0.1) * 5);
@@ -206,22 +225,17 @@ class Enemy {
     noTint();
     popMatrix();
     
-    // Debug: show enemy position and speed
+    // Debug: show enemy position
     if (keyPressed && key == 'd') {
       fill(255, 255, 0);
       textAlign(CENTER, CENTER);
       textSize(10);
-      text(type + " (" + (int)x + "," + (int)y + ") vX:" + velocityX, x + w/2, y - 15);
       
-      // Show flip status and position status
-      String status = "";
-      if (type.equals("bird")) {
-        if (x < grid.originX) status = "OUTSIDE-L";
-        else if (x > grid.originX + grid.cols * grid.cellSize) status = "OUTSIDE-R";
-        else status = "INSIDE";
-      }
-      fill(255, 100, 100);
-      text(status, x + w/2, y + h + 5);
+      // 計算當前垂直格子位置
+      int currentRow = round((y + h/2 - grid.originY) / grid.cellSize);
+      
+      text(type + " (" + (int)x + "," + (int)y + ") Row:" + currentRow, x + w/2, y - 15);
+      text("vX:" + velocityX, x + w/2, y - 5);
     }
   }
 
@@ -238,5 +252,15 @@ class Enemy {
     
     // pest allow moving off map, only remove when completely off screen
     return x < -200 || x > width + 200;
+  }
+  
+  // 新增：取得當前垂直格子位置
+  PVector getCurrentGridPosition() {
+    if (grid == null) return new PVector(-1, -1);
+    
+    float centerY = y + h/2;
+    int gridRow = round((centerY - grid.originY) / grid.cellSize);
+    
+    return new PVector(gridRow, x); // 返回行和實際X位置
   }
 }

@@ -41,10 +41,16 @@ PImage backgroundImage;
 // GridIndicator Variables
 ArrayList<GridIndicator> gridIndicators = new ArrayList<GridIndicator>();
 
+// UI Manager
+UI ui;
+
 void setup() {
   //size(1600, 900);
   fullScreen();
   loadSprites();
+  
+  // Initialize UI manager
+  ui = new UI();
   
   // Initialize grid and player when level is already set
   grid = new Grid();
@@ -56,12 +62,12 @@ void setup() {
 void draw() {
   switch(gameState) {
     case GAME_RUN:
-      // Show background image - 確保背景正確顯示
+      // Show background image
       if (backgroundImage != null) {
         imageMode(CORNER);
         image(backgroundImage, 0, 0, width, height);
       } else {
-        background(50, 150, 50); // 綠色後備背景
+        background(50, 150, 50);
       }
       
       if (grid != null) grid.show();
@@ -219,128 +225,23 @@ void draw() {
         gameState = GAME_WIN;
       }
 
-      // Enhanced UI with semi-transparent background for readability
-      fill(0, 150);
-      noStroke();
-      rectMode(CORNER); // Ensure UI uses correct rectangle mode
-      rect(10, 10, 300, 240); // Increased height to show level features
-      
-      fill(255);
-      textSize(32);
-      textAlign(LEFT, TOP);
-      text("Time: " + (survivalTime / 1000) + "s", 20, 20);
-      text("Level: " + level, 20, 60);
-      
-      // Show level features
-      textSize(16);
-      fill(200, 200, 255);
-      text("Level " + level + " Features:", 20, 100);
-      
-      if (level == 1) {
-        text("• Pest enemies", 20, 120);
-        text("• Gopher (GridIndicator)", 20, 140);
-      } else if (level == 2) {
-        text("• Pest enemies", 20, 120);
-        text("• Bird enemies (teleport)", 20, 140);
-        text("• Gopher (GridIndicator)", 20, 160);
-      } else if (level == 3) {
-        text("• Pest enemies", 20, 120);
-        text("• Bird enemies (teleport)", 20, 140);
-        text("• Gopher (GridIndicator)", 20, 160);
-        text("• Scarecrow (invincibility)", 20, 180);
-        text("• Poison Mushroom (flip)", 20, 200);
-      }
-      
-      // Show player status with colors
-      fill(255);
-      if (p.isFlipped) {
-        fill(255, 0, 255);
-        text("FLIPPED!", 320, 120);
-      }
-      if (p.isInvincible) {
-        fill(255, 255, 0);
-        text("INVINCIBLE!", 320, 140);
-      }
-      if (p.showGridIndicator) {
-        fill(0, 255, 0);
-        text("GRID TRACKER!", 320, 160);
-      }
-      
-      // Show enemy count
-      fill(0, 150);
-      rect(width - 220, 10, 210, 60);
-      fill(255, 100, 100);
-      textAlign(LEFT, TOP);
-      text("Enemies: " + enemies.size(), width - 200, 20);
+      // Use UI manager to show all UI elements
+      ui.showGameUI(survivalTime, level, p, enemies.size());
+      ui.showDebugInfo(p, enemies, items, gridIndicators);
+      ui.showControlsHelp();
 
       break;
       
     case GAME_LOSE:
-      loadGameResult("YOU LOST!");
+      ui.showGameResult("YOU LOST!", backgroundImage);
       break;
 
     case GAME_WIN:
-      loadGameResult("YOU WIN!");
+      ui.showGameResult("YOU WIN!", backgroundImage);
       break;
 
     case GAME_HOME:
-      // Clear background first
-      background(0);
-      
-      // Show background image - 修正背景顯示
-      if (backgroundImage != null) {
-        // 確保背景圖片填滿整個螢幕
-        imageMode(CORNER);
-        image(backgroundImage, 0, 0, width, height);
-      } else {
-        // 後備背景漸層
-        for (int i = 0; i <= height; i++) {
-          float inter = map(i, 0, height, 0, 1);
-          color c = lerpColor(color(50, 150, 50), color(20, 80, 20), inter);
-          stroke(c);
-          line(0, i, width, i);
-        }
-      }
-      
-      // Show title image with proper scaling and positioning
-      if (titleImage != null) {
-        // Calculate scale to fit within 60% of screen width and 25% of screen height
-        float maxTitleWidth = width * 0.6;
-        float maxTitleHeight = height * 0.25;
-        float titleScale = min(maxTitleWidth / titleImage.width, maxTitleHeight / titleImage.height);
-        
-        float titleW = titleImage.width * titleScale;
-        float titleH = titleImage.height * titleScale;
-        
-        imageMode(CENTER);
-        image(titleImage, width/2, height/2 - 100, titleW, titleH);
-      } else {
-        // Fallback text title
-        fill(255, 140, 0);
-        textAlign(CENTER, CENTER);
-        textSize(72);
-        text("CARROT DASH", width / 2, height / 2 - 100);
-      }
-      
-      // Menu options with better styling and positioning
-      fill(0, 180);
-      rectMode(CENTER);
-      rect(width/2, height/2 + 100, 500, 250);
-      
-      fill(255);
-      textAlign(CENTER, CENTER);
-      textSize(36);
-      text("Choose a Level", width / 2, height / 2 + 20);
-      
-      textSize(28);
-      text("Press 1 for Level 1 (3x3)", width / 2, height / 2 + 60);
-      text("Press 2 for Level 2 (4x4)", width / 2, height / 2 + 100);
-      text("Press 3 for Level 3 (5x5)", width / 2, height / 2 + 140);
-      
-      // Instructions
-      textSize(20);
-      fill(200);
-      text("Use WASD or Arrow Keys to move", width / 2, height / 2 + 180);
+      ui.showHomeMenu(titleImage, backgroundImage);
       break;
 
     default:
@@ -484,27 +385,7 @@ void loadSprites() {
   }
 }
 
-void loadGameResult(String message) {
-  // Show background - fix background display
-  if (backgroundImage != null) {
-    imageMode(CORNER); // Ensure using corner mode
-    image(backgroundImage, 0, 0, width, height);
-  } else {
-    background(0);
-  }
-  
-  fill(0, 200);
-  noStroke();
-  rectMode(CENTER);
-  rect(width / 2, height / 2, 600, 300);
-
-  fill(255);
-  textSize(48);
-  textAlign(CENTER, CENTER);
-  text(message, width/2, height/2 - 40);
-  textSize(24);
-  text("Press R to restart", width/2, height/2 + 20);
-}
+// Remove the old loadGameResult method since it's now in UI class
 
 // Fix getAvailableGridCells method
 ArrayList<PVector> getAvailableGridCells() {
