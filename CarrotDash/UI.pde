@@ -455,7 +455,7 @@ class UI {
   // 修改建議：可添加更多除錯資訊，改變顯示位置或樣式
   void showDebugInfo(Player player, ArrayList<Enemy> enemies, ArrayList<Item> items, ArrayList<GridIndicator> gridIndicators) {
     // 只有按下 'd' 鍵時才顯示 - 可修改觸發鍵
-    if (keyPressed && key == 'd') {
+    if (keyPressed && key == 't') {
       textAlign(LEFT, TOP);
       setFont(tinyFontSize); // 可調整除錯文字大小
 
@@ -565,7 +565,7 @@ class UI {
       setFont(16);
       text("WASD or Arrow Keys - Move", width/2, helpY);
       helpY += lineHeight;
-      text("D - Toggle Debug Info", width/2, helpY);
+      text("T - Toggle Debug Info", width/2, helpY);
       helpY += lineHeight;
       text("H - Show/Hide Help", width/2, helpY);
       helpY += lineHeight;

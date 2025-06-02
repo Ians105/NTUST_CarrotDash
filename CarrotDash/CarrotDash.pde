@@ -113,14 +113,10 @@ void draw() {
         String[] enemyTypes;
         
         // Define enemy types based on level
-        if (level == 1) {
-          enemyTypes = new String[]{"pest"}; // Level 1: only pest
-        } else if (level == 2) {
-          enemyTypes = new String[]{"pest", "bird"}; // Level 2: pest and bird
-        } else if (level == 3) {
-          enemyTypes = new String[]{"pest", "bird"}; // Level 3: pest and bird
+        if (level == 2 || level == 3) {
+          enemyTypes = new String[]{"pest", "bird"}; // Level 2 and 3: pest and bird
         } else {
-          enemyTypes = new String[]{"pest"}; // Default fallback
+          enemyTypes = new String[]{"pest"}; // Level 1 : pest
         }
         
         String randomType = enemyTypes[(int)random(enemyTypes.length)];
