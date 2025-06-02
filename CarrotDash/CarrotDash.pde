@@ -3,6 +3,7 @@ final int GAME_HOME = 0;
 final int GAME_RUN = 1;
 final int GAME_WIN = 2;
 final int GAME_LOSE = 3;
+final int GAME_LOADING = 4; // 新增載入狀態
 
 // Speed for grid like movement
 final int SPEED = 100;
@@ -44,23 +45,58 @@ ArrayList<GridIndicator> gridIndicators = new ArrayList<GridIndicator>();
 // UI Manager
 UI ui;
 
+int levelDuration = 60000; // 每關60秒
+int currentLevelStartTime = 0;
+
+// 在全域變數區域添加
+boolean isSpeedingUp = false;
+int speedUpStartTime = 0;
+boolean speedUpMessageShown = false;
+
+// 載入相關變數
+int loadingStartTime = 0;
+final int LOADING_DURATION = 5000; // 5秒載入時間
+
 void setup() {
-  //size(1600, 900);
-  fullScreen();
-  loadSprites();
+  size(1280, 720);
   
-  // Initialize UI manager
+  // 先初始化 UI
   ui = new UI();
   
-  // Initialize grid and player when level is already set
-  grid = new Grid();
-  p = new Player();
+  // 載入圖片資源（在載入頁面之前）
+  loadSprites();
   
-  frameRate(60);
+  // 開始載入頁面
+  gameState = GAME_LOADING;
+  loadingStartTime = millis();
+  
+  println("Starting CarrotDash game...");
+  println("Loading screen initialized...");
 }
 
 void draw() {
   switch(gameState) {
+    case GAME_LOADING:
+      // 顯示載入畫面（使用已載入的圖片）
+      ui.showLoadingScreen(titleImage, backgroundImage, loadingStartTime);
+      
+      // 檢查載入是否完成
+      if (millis() - loadingStartTime >= LOADING_DURATION) {
+        gameState = GAME_HOME;
+        
+        // 載入完成後初始化遊戲資源
+        grid = new Grid();
+        p = new Player();
+        
+        println("Loading completed! Entering main menu...");
+      }
+      break;
+      
+    case GAME_HOME:
+      // 載入完成後才顯示主選單
+      ui.showHomeMenu(titleImage, backgroundImage);
+      break;
+      
     case GAME_RUN:
       // Show background image
       if (backgroundImage != null) {
@@ -72,47 +108,87 @@ void draw() {
       
       if (grid != null) grid.show();
 
-      // Spawn enemies every interval - restrict enemy types by level
+      // Spawn enemies every interval - Level 1 特別優化
       if (millis() - lastEnemySpawnTime > enemySpawnInterval) {
         String[] enemyTypes;
         
         // Define enemy types based on level
         if (level == 1) {
-          enemyTypes = new String[]{"pest"}; // Level 1: only pest (gopher will be handled by GridIndicator)
+          enemyTypes = new String[]{"pest"}; // Level 1: only pest
         } else if (level == 2) {
-          enemyTypes = new String[]{"pest", "bird"}; // Level 2: pest and bird (gopher still in GridIndicator)
+          enemyTypes = new String[]{"pest", "bird"}; // Level 2: pest and bird
         } else if (level == 3) {
-          enemyTypes = new String[]{"pest", "bird"}; // Level 3: pest and bird (gopher still in GridIndicator)
+          enemyTypes = new String[]{"pest", "bird"}; // Level 3: pest and bird
         } else {
           enemyTypes = new String[]{"pest"}; // Default fallback
         }
         
         String randomType = enemyTypes[(int)random(enemyTypes.length)];
         
-        // Generate monsters at 2 grids outside the grid
+        // Level 1 特殊生成邏輯：按您的要求修改
         float spawnX, spawnY;
         
-        // Randomly choose to spawn from left or right
-        boolean fromLeft = random(1) < 0.5;
-        
-        if (fromLeft) {
-          // Enter from left, spawn 2 grids outside left edge
-          spawnX = grid.originX - 2 * grid.cellSize;
-          // Randomly select a row in playable area
-          int randomRow = (int)random(1, grid.playableRows + 1); // 1 to playableRows
-          spawnY = grid.originY + randomRow * grid.cellSize;
+        if (level == 1) {
+          // Level 1: 更隨機的生成位置和方向
+          
+          // Level 1 額外隨機性：10% 機率從上下生成
+          if (random(1) < 0.1) {
+            boolean fromTop = random(1) < 0.5;
+            if (fromTop) {
+              // 從上方生成
+              spawnX = grid.originX + random(0, grid.cols) * grid.cellSize;
+              spawnY = grid.originY - random(2, 3) * grid.cellSize; // 2-3格距離
+            } else {
+              // 從下方生成
+              spawnX = grid.originX + random(0, grid.cols) * grid.cellSize;
+              spawnY = grid.originY + (grid.playableRows + random(2, 3)) * grid.cellSize; // 2-3格距離
+            }
+          } else {
+            // 90% 機率從左右生成
+            boolean fromLeft = random(1) < 0.5;
+            
+            if (fromLeft) {
+              // 從左側生成：2-3格距離
+              spawnX = grid.originX - random(2, 3) * grid.cellSize; // 修改：2-3格距離
+              // 垂直位置：只在可玩區域內，不包含邊界
+              int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
+              spawnY = grid.originY + randomRow * grid.cellSize;
+            } else {
+              // 從右側生成：2-3格距離
+              spawnX = grid.originX + (grid.cols + random(2, 3)) * grid.cellSize; // 修改：2-3格距離
+              // 垂直位置：只在可玩區域內，不包含邊界
+              int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
+              spawnY = grid.originY + randomRow * grid.cellSize;
+            }
+          }
         } else {
-          // Enter from right, spawn 2 grids outside right edge
-          spawnX = grid.originX + (grid.cols + 2) * grid.cellSize;
-          // Randomly select a row in playable area
-          int randomRow = (int)random(1, grid.playableRows + 1); // 1 to playableRows
-          spawnY = grid.originY + randomRow * grid.cellSize;
+          // Level 2+ 保持原來的邏輯
+          boolean fromLeft = random(1) < 0.5;
+          
+          if (fromLeft) {
+            spawnX = grid.originX - 2 * grid.cellSize;
+            int randomRow = (int)random(1, grid.playableRows + 1); 
+            spawnY = grid.originY + randomRow * grid.cellSize;
+          } else {
+            spawnX = grid.originX + (grid.cols + 2) * grid.cellSize;
+            int randomRow = (int)random(1, grid.playableRows + 1); 
+            spawnY = grid.originY + randomRow * grid.cellSize;
+          }
         }
         
         enemies.add(new Enemy(spawnX, spawnY, randomType));
         lastEnemySpawnTime = millis();
         
-        println("Spawned " + randomType + " at (" + spawnX + ", " + spawnY + ") from " + (fromLeft ? "left" : "right"));
+        println("Spawned " + randomType + " at (" + (int)spawnX + ", " + (int)spawnY + ")");
+        
+        // Level 1 額外機制：30% 機率連續生成
+        if (level == 1 && random(1) < 0.3) {
+          // 0.5-1.5秒後再生成一個
+          int extraDelay = (int)random(500, 1500);
+          // 記錄額外生成時間
+          lastEnemySpawnTime = millis() - enemySpawnInterval + extraDelay;
+          println("Level 1 bonus spawn scheduled in " + extraDelay + "ms");
+        }
       }
 
       // Spawn items - restrict item types by level
@@ -121,13 +197,13 @@ void draw() {
         
         // Define item types based on level
         if (level == 1) {
-          itemTypes = new String[]{}; // Level 1: no items (gopher effect comes from GridIndicator)
+          itemTypes = new String[]{}; 
         } else if (level == 2) {
-          itemTypes = new String[]{}; // Level 2: no items yet (gopher effect still from GridIndicator)
+          itemTypes = new String[]{};
         } else if (level == 3) {
-          itemTypes = new String[]{"flip", "star"}; // Level 3: scarecrow(star) and poisonmushroom(flip)
+          itemTypes = new String[]{"flip", "star"}; 
         } else {
-          itemTypes = new String[]{}; // Default: no items
+          itemTypes = new String[]{};
         }
         
         // Only spawn items if there are item types available for this level
@@ -140,8 +216,8 @@ void draw() {
           if (availableCells.size() > 0) {
             // Randomly select an available cell
             PVector selectedCell = availableCells.get((int)random(availableCells.size()));
-            int playableRow = (int)selectedCell.x; // Playable area relative coordinates
-            int playableCol = (int)selectedCell.y; // Playable area relative coordinates
+            int playableRow = (int)selectedCell.x; 
+            int playableCol = (int)selectedCell.y;
             
             // Create item using playable area coordinates
             items.add(new Item(playableRow, playableCol, randomType));
@@ -176,7 +252,7 @@ void draw() {
             if (item.type.equals("flip") && item.touchesEnemy(enemy)) {
               item.applyEffectToEnemy(enemy);
               items.remove(j); // Remove consumed mushroom
-              break; // Exit inner loop to avoid index error
+              break; 
             }
           }
         }
@@ -219,14 +295,55 @@ void draw() {
         }
       }
 
-      // Check survival time
-      int survivalTime = millis() - gameStartTime;
-      if (survivalTime >= 60000) {
-        gameState = GAME_WIN;
+      // Check survival time - 使用當前關卡時間
+      int currentLevelTime = millis() - currentLevelStartTime;
+      int timeRemaining = levelDuration - currentLevelTime;
+      
+      // 全關卡加速機制：剩餘30秒時啟動
+      boolean shouldSpeedUp = false;
+      if (timeRemaining <= 30000 && timeRemaining > 0) { // 剩餘30秒或更少，但不為負數
+        shouldSpeedUp = true;
+        
+        // 第一次觸發加速時記錄時間和顯示訊息
+        if (!isSpeedingUp) {
+          isSpeedingUp = true;
+          speedUpStartTime = millis();
+          speedUpMessageShown = false;
+          println("SPEED UP ACTIVATED for Level " + level + "! Time remaining: " + (timeRemaining/1000) + "s");
+        }
+      } else {
+        // 重置加速狀態（用於下一關）
+        if (isSpeedingUp) {
+          isSpeedingUp = false;
+          speedUpMessageShown = false;
+          println("Speed up deactivated for Level " + level);
+        }
+      }
+      
+      // 通知所有敵人是否需要加速
+      for (Enemy enemy : enemies) {
+        enemy.updateSpeedForAllLevels(shouldSpeedUp);
+      }
+      
+      if (timeRemaining <= 0) {
+        // 當前關卡完成 - 重置加速狀態
+        isSpeedingUp = false;
+        speedUpMessageShown = false;
+        
+        if (level < 3) {
+          // 進入下一關
+          level++;
+          println("Level " + (level-1) + " completed! Starting Level " + level);
+          startGame(); // 重新開始新關卡
+        } else {
+          // 所有關卡完成
+          gameState = GAME_WIN;
+        }
       }
 
-      // Use UI manager to show all UI elements
-      ui.showGameUI(survivalTime, level, p, enemies.size());
+      // Use UI manager to show all UI elements - 傳遞剩餘時間和加速狀態
+      ui.showGameUI(timeRemaining, level, p, enemies.size());
+      ui.showSpeedUpMessage(isSpeedingUp, speedUpStartTime); // 新增加速訊息顯示
       ui.showDebugInfo(p, enemies, items, gridIndicators);
       ui.showControlsHelp();
 
@@ -240,12 +357,9 @@ void draw() {
       ui.showGameResult("YOU WIN!", backgroundImage);
       break;
 
-    case GAME_HOME:
-      ui.showHomeMenu(titleImage, backgroundImage);
-      break;
-
     default:
       background(0);
+      break;
   }
 }
 
@@ -281,10 +395,15 @@ void resetGame() {
   gameState = GAME_HOME;
   enemies.clear();
   items.clear();
-  gridIndicators.clear(); // Clear gridIndicators
-  level = 1; // Reset to default level
-  grid = new Grid(); // Recreate grid
-  p = new Player(); // Recreate player
+  gridIndicators.clear();
+  level = 1;
+  
+  // 重置加速狀態
+  isSpeedingUp = false;
+  speedUpMessageShown = false;
+  
+  grid = new Grid();
+  p = new Player();
   lastEnemySpawnTime = millis();
   lastItemSpawnTime = millis();
 }
@@ -293,59 +412,62 @@ void startGame() {
   println("Starting game with level: " + level);
   gameState = GAME_RUN;
   
+  // 重置加速狀態
+  isSpeedingUp = false;
+  speedUpMessageShown = false;
+  
   // Recreate grid and player
   grid = new Grid();
   p = new Player();
   
   enemies.clear();
   items.clear();
-  gridIndicators.clear(); // Clear all gophers
+  gridIndicators.clear();
   
   lastEnemySpawnTime = millis();
   lastItemSpawnTime = millis();
-  gameStartTime = millis();
+  currentLevelStartTime = millis(); // 記錄當前關卡開始時間
 
-  // Set enemy spawn interval based on level and complexity
+  // Set enemy spawn interval based on level - 按您的要求調整
   if (level == 1) {
-    enemySpawnInterval = 5000;  // Level 1: 5 seconds (easier, only pest)
+    enemySpawnInterval = 3000; // 修改：2000 → 3000ms (3秒)
   } else if (level == 2) {
-    enemySpawnInterval = 4000;  // Level 2: 4 seconds (pest + bird)
+    enemySpawnInterval = 3500; // 保持：3500ms
   } else if (level == 3) {
-    enemySpawnInterval = 3000;  // Level 3: 3 seconds (all enemies + items)
+    enemySpawnInterval = 3500; // 修改：2500 → 3500ms
   } else {
-    enemySpawnInterval = 4000;  // Default 4 seconds
+    enemySpawnInterval = 4000;
   }
   
   // Set item spawn interval (only relevant for level 3+)
   if (level >= 3) {
-    itemSpawnInterval = 6000; // 6 seconds for items in level 3
+    itemSpawnInterval = 6000; 
   } else {
-    itemSpawnInterval = 999999; // Very long interval (effectively disabled) for levels 1-2
+    itemSpawnInterval = 999999;
   }
   
   println("Level " + level + " configuration:");
   println("  Enemy spawn interval: " + enemySpawnInterval + "ms");
   println("  Item spawn interval: " + itemSpawnInterval + "ms");
+  println("  Level duration: " + (levelDuration/1000) + " seconds");
 }
 
 void loadSprites() {
   // Player sprites - use carrot images
   try {
-    playerSprites[0] = loadImage("data/carrotMain.png");    // default
-    playerSprites[1] = loadImage("data/carrotUp.png");      // up
-    playerSprites[2] = loadImage("data/carrotRight.png");   // right
-    playerSprites[3] = loadImage("data/carrotDown.png");    // down
-    playerSprites[4] = loadImage("data/carrotLeft.png");    // left
-    playerSprites[5] = loadImage("data/carrotMain.png");    // defeated
+    playerSprites[0] = loadImage("data/carrotMain.png");    
+    playerSprites[1] = loadImage("data/carrotUp.png");     
+    playerSprites[2] = loadImage("data/carrotRight.png");  
+    playerSprites[3] = loadImage("data/carrotDown.png");    
+    playerSprites[4] = loadImage("data/carrotLeft.png");    
+    playerSprites[5] = loadImage("data/carrotMain.png");   
 
-    // Load UI images - 修正背景圖片文件名
+    // Load UI images
     titleImage = loadImage("data/Title.PNG");
-    backgroundImage = loadImage("data/background.png"); // 修正：改為 background.png
+    backgroundImage = loadImage("data/background.png");
     
-    // 檢查背景圖片是否成功加載
     if (backgroundImage == null) {
       println("Warning: background.png not found, trying other variations...");
-      // 嘗試其他可能的文件名
       backgroundImage = loadImage("data/background.PNG");
       if (backgroundImage == null) {
         backgroundImage = loadImage("data/startBG.png");
@@ -361,7 +483,7 @@ void loadSprites() {
       println("Error: Background image not found! Please check if background.png exists in data folder.");
     }
     
-    // 檢查 player sprites 是否加載成功
+    // player sprites 
     for (int i = 0; i < playerSprites.length; i++) {
       if (playerSprites[i] != null) {
         println("Player sprite " + i + " loaded successfully");
@@ -384,8 +506,6 @@ void loadSprites() {
     }
   }
 }
-
-// Remove the old loadGameResult method since it's now in UI class
 
 // Fix getAvailableGridCells method
 ArrayList<PVector> getAvailableGridCells() {

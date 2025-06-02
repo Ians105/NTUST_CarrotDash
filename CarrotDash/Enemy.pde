@@ -4,11 +4,14 @@ class Enemy {
   String type;        // "pest", "bird"
   PImage[] sprites;   // Store multiple animation frames
   float speed;
+  float baseSpeed; // 記錄基礎速度
+  boolean isSpeedBoosted = false; // 是否處於加速狀態
   
   // Animation variables
   int animFrame = 0;
   int lastAnimTime = 0;
   int animSpeed = 200; // milliseconds per frame
+  int baseAnimSpeed; // 記錄基礎動畫速度
 
   Enemy(float startX, float startY, String type) {
     this.type = type;
@@ -18,18 +21,24 @@ class Enemy {
     // Load sprites based on type
     loadSpritesForType(type);
     
-    // Set different speeds for different enemy types - 大幅加速動畫
+    // Set different speeds for different enemy types
     if (type.equals("pest")) {
-      speed = 2.0;
-      animSpeed = 120; // 減少：300 → 120
+      baseSpeed = 2.0;
+      speed = baseSpeed;
+      baseAnimSpeed = 120;
+      animSpeed = baseAnimSpeed;
     }
     else if (type.equals("bird")) {
-      speed = 1.5;
-      animSpeed = 80;  // 減少：150 → 80
+      baseSpeed = 1.5;
+      speed = baseSpeed;
+      baseAnimSpeed = 80;
+      animSpeed = baseAnimSpeed;
     }
     else {
-      speed = 1.5; // default
-      animSpeed = 100; // 減少：250 → 100
+      baseSpeed = 1.5;
+      speed = baseSpeed;
+      baseAnimSpeed = 100;
+      animSpeed = baseAnimSpeed;
     }
     
     // 修正：只在垂直方向置中到格子，水平位置保持原始
@@ -57,6 +66,44 @@ class Enemy {
     setMovementDirection(startX);
     
     println("Enemy " + type + " created at (" + x + ", " + y + ") velocityX: " + velocityX);
+  }
+  
+  // 修改：統一所有關卡的加速機制
+  void updateSpeedForAllLevels(boolean shouldSpeedUp) {
+    if (shouldSpeedUp && !isSpeedBoosted) {
+      // 開始加速 - 所有敵人類型統一加速
+      speed = baseSpeed + 0.5; // 增加 0.5
+      animSpeed = 100; // 修改：120ms → 100ms
+      isSpeedBoosted = true;
+      
+      // 更新移動速度（保持方向）
+      if (velocityX > 0) {
+        velocityX = speed;
+      } else {
+        velocityX = -speed;
+      }
+      
+      println(type + " SPEED BOOST activated! Base: " + baseSpeed + " → New: " + speed);
+    } else if (!shouldSpeedUp && isSpeedBoosted) {
+      // 恢復正常速度
+      speed = baseSpeed;
+      animSpeed = baseAnimSpeed;
+      isSpeedBoosted = false;
+      
+      // 更新移動速度（保持方向）
+      if (velocityX > 0) {
+        velocityX = speed;
+      } else {
+        velocityX = -speed;
+      }
+      
+      println(type + " speed returned to normal: " + speed);
+    }
+  }
+  
+  // 保留舊方法以向後兼容（但現在調用新方法）
+  void updateSpeedForLevel1(boolean shouldSpeedUp) {
+    updateSpeedForAllLevels(shouldSpeedUp);
   }
   
   void setMovementDirection(float originalStartX) {
@@ -194,17 +241,30 @@ class Enemy {
       }
     }
     
-    // Add visual effects based on type
+    // Add visual effects based on type and speed boost
     if (type.equals("bird")) {
-      // Bird has slight transparency and floating effect
-      tint(255, 230);
-      // Slight up-down floating
-      translate(0, sin(frameCount * 0.1) * 5);
+      if (isSpeedBoosted) {
+        // 加速時的視覺效果：黃色調
+        tint(255, 255, 200);
+        translate(0, sin(frameCount * 0.15) * 7); // 加速時飛行更激烈
+      } else {
+        tint(255, 230);
+        translate(0, sin(frameCount * 0.1) * 5);
+      }
     } else if (type.equals("pest")) {
-      // pest keep fully opaque
-      noTint();
+      if (isSpeedBoosted) {
+        // 加速時的視覺效果：黃色調
+        tint(255, 255, 150);
+      } else {
+        noTint();
+      }
     } else {
-      noTint();
+      if (isSpeedBoosted) {
+        // 其他敵人類型加速時也顯示黃色調
+        tint(255, 255, 150);
+      } else {
+        noTint();
+      }
     }
     
     imageMode(CENTER);
@@ -213,11 +273,11 @@ class Enemy {
     } else {
       // Fallback display
       if (type.equals("pest")) {
-        fill(255, 0, 0); // pest red
+        fill(isSpeedBoosted ? color(255, 255, 100) : color(255, 0, 0)); // 加速時黃色
       } else if (type.equals("bird")) {
-        fill(0, 0, 255); // bird blue
+        fill(isSpeedBoosted ? color(100, 100, 255) : color(0, 0, 255)); // 加速時淺藍色
       } else {
-        fill(255, 0, 0); // default red
+        fill(isSpeedBoosted ? color(255, 255, 100) : color(255, 0, 0)); // 加速時黃色
       }
       ellipse(0, 0, w, h);
     }
@@ -225,7 +285,7 @@ class Enemy {
     noTint();
     popMatrix();
     
-    // Debug: show enemy position
+    // Debug: show enemy position and speed status
     if (keyPressed && key == 'd') {
       fill(255, 255, 0);
       textAlign(CENTER, CENTER);
@@ -234,8 +294,14 @@ class Enemy {
       // 計算當前垂直格子位置
       int currentRow = round((y + h/2 - grid.originY) / grid.cellSize);
       
-      text(type + " (" + (int)x + "," + (int)y + ") Row:" + currentRow, x + w/2, y - 15);
-      text("vX:" + velocityX, x + w/2, y - 5);
+      text(type + " (" + (int)x + "," + (int)y + ") Row:" + currentRow, x + w/2, y - 25);
+      text("vX:" + velocityX, x + w/2, y - 15);
+      
+      // 顯示加速狀態
+      if (isSpeedBoosted) {
+        fill(255, 255, 100);
+        text("BOOSTED!", x + w/2, y - 5);
+      }
     }
   }
 
