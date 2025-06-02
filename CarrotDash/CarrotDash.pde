@@ -343,9 +343,9 @@ void draw() {
         }
       }
 
-      // Use UI manager to show all UI elements - 傳遞剩餘時間和加速狀態
-      ui.showGameUI(timeRemaining, level, p, enemies.size());
-      ui.showSpeedUpMessage(isSpeedingUp, speedUpStartTime); // 新增加速訊息顯示
+      // Use UI manager to show all UI elements - 移除敵人數量參數
+      ui.showGameUI(timeRemaining, level, p);
+      ui.showSpeedUpMessage(isSpeedingUp, speedUpStartTime);
       ui.showDebugInfo(p, enemies, items, gridIndicators);
       ui.showControlsHelp();
 

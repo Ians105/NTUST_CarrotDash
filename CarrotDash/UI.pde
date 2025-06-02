@@ -135,7 +135,7 @@ class UI {
     int levelY = height - 130;
 
     // 關卡選擇標題 - 改為 "Choose a level"
-    fill(255, 220, 150);
+    fill(255, 153, 51);
     setFont(26);
     text("Choose a level", width/2, levelY - 20);
 
@@ -229,10 +229,10 @@ class UI {
 
   // ==================== 遊戲中 UI 主控制器 ====================
   // 修改建議：可添加更多遊戲資訊顯示，如分數、道具等
-  void showGameUI(int survivalTime, int level, Player player, int enemyCount) {
+  void showGameUI(int survivalTime, int level, Player player) {
     showGameInfo(survivalTime, level);    // 顯示關卡和時間資訊
     showPlayerStatus(player);             // 顯示玩家狀態效果
-    showEnemyCount(enemyCount);           // 顯示敵人數量
+    // 移除敵人數量顯示
   }
 
   // ==================== 遊戲資訊顯示 ====================
@@ -328,21 +328,6 @@ class UI {
       text("GRID TRACKER!", statusX, currentY);
       currentY += lineHeight;
     }
-  }
-
-  // ==================== 敵人數量顯示 ====================
-  // 修改建議：可改為左對齊、置中對齊，或添加敵人圖示
-  void showEnemyCount(int enemyCount) {
-    textAlign(RIGHT, TOP); // 右對齊 - 可修改為其他對齊方式
-    setFont(smallFontSize);
-
-    // 敵人數量陰影
-    fill(0, 150);
-    text("Enemies: " + enemyCount, enemyCountX + 2, enemyCountY + 2);
-
-    // 敵人數量主體
-    fill(dangerColor); // 紅色 - 可修改為其他顏色
-    text("Enemies: " + enemyCount, enemyCountX, enemyCountY);
   }
 
   // ==================== 加速訊息顯示 ====================
@@ -556,7 +541,7 @@ class UI {
     int titleY = height / 4;
 
     // 關卡標題（無背景框）
-    fill(255, 220, 100);
+    fill(255, 153, 51);
     setFont(36);
     text("LEVEL " + selectedLevel + " GAME RULES", width / 2, titleY);
 
@@ -575,7 +560,7 @@ class UI {
     // ==================== 關卡敵人與物品資訊 ====================
     int enemyItemInfoY = infoY + 80; // Start below game rules
 
-    fill(255, 255, 150);
+    fill(255, 153, 51);
     setFont(22);
     text("CHALLENGES", width/2, enemyItemInfoY);
 
@@ -617,42 +602,28 @@ int buttonRowCenterY = height - 120; // 按鈕行的垂直中心
     int backButtonX = (width / 2) + (totalButtonsWidth / 2) - (buttonWidth / 2);
 
     // START LEVEL Button
-    // 判斷滑鼠是否在按鈕區域，但不再影響填色
-    boolean isHoverStart = mouseX >= startButtonX - buttonWidth / 2 && mouseX <= startButtonX + buttonWidth / 2 &&
-                           mouseY >= buttonRowCenterY - buttonHeight / 2 && mouseY <= buttonRowCenterY + buttonHeight / 2;
-
+    // 移除懸停檢測邏輯
     rectMode(CENTER);
     noStroke(); // 移除框線
     noFill();   // 移除填色背景
 
-    // START button text
-    // 懸停時文字顏色變淺黃，否則為白色
-    if (isHoverStart) {
-      fill(255, 220, 100); 
-    } else {
-      fill(255); 
-    }
+    // START button text - 固定白色
+    fill(255); 
     setFont(24);
     text("START LEVEL", startButtonX, buttonRowCenterY); // 主文字垂直置中
 
     // START button hint text (below its button)
-    fill(25); // 提示文字顏色
+    fill(255); // 提示文字顏色
     setFont(14);
     text("(press SPACE)", startButtonX, buttonRowCenterY + (buttonHeight / 2) + 5); // 提示文字在按鈕下方留白
 
     // BACK TO MENU Button
-    // 判斷滑鼠是否在按鈕區域，但不再影響填色
-    boolean isHoverBack = mouseX >= backButtonX - buttonWidth / 2 && mouseX <= backButtonX + buttonWidth / 2 &&
-                          mouseY >= buttonRowCenterY - buttonHeight / 2 && mouseY <= buttonRowCenterY + buttonHeight / 2;
-
+    // 移除懸停檢測邏輯
     noStroke(); // 移除框線
     noFill();   // 移除填色背景
 
-    if (isHoverBack) {
-      fill(255, 220, 100); 
-    } else {
-      fill(255); 
-    }
+    // BACK button text - 固定白色
+    fill(255);
     setFont(24); // 與 START LEVEL 文字大小一致
     text("Back to Menu", backButtonX, buttonRowCenterY); // 主文字垂直置中
 
