@@ -4,34 +4,34 @@ class UI {
   PFont notoFont; // 主要字體 - 可以更換為其他 .ttf/.otf 字體檔案
 
   // UI Colors - 顏色主題設定，可以整體更換遊戲風格
-  color backgroundColor = color(0, 150);     // 背景色 - 調整透明度或顏色
-  color textColor = color(255);              // 主要文字色 - 白色，可改為其他顏色
-  color highlightColor = color(255, 255, 0); // 高亮色 - 黃色，用於重要提示
-  color dangerColor = color(255, 100, 100);  // 危險色 - 紅色，用於警告
-  color successColor = color(100, 255, 100); // 成功色 - 綠色，用於正面訊息
-  color infoColor = color(200, 200, 255);    // 資訊色 - 淺藍，用於一般資訊
+  color backgroundColor = color(0, 150);       //
+  color textColor = color(255);                // 主要文字色 - 白色，可改為其他顏色
+  color highlightColor = color(255, 255, 0);   // 高亮色 - 黃色，用於重要提示
+  color dangerColor = color(255, 100, 100);    // 危險色 - 紅色，用於警告
+  color successColor = color(100, 255, 100);   // 成功色 - 綠色，用於正面訊息
+  color infoColor = color(200, 200, 255);      // 資訊色 - 淺藍，用於一般資訊
 
   // ==================== 字體大小設定 ====================
   // 修改建議：根據螢幕解析度調整字體大小比例
-  int largeFontSize = 48;   // 大標題字體 - 可調整為 36-60
-  int mediumFontSize = 32;  // 中等字體 - 可調整為 24-40
-  int smallFontSize = 16;   // 小字體 - 可調整為 12-20
-  int tinyFontSize = 12;    // 極小字體 - 可調整為 8-16
+  int largeFontSize = 48;    // 大標題字體 - 可調整為 36-60
+  int mediumFontSize = 32;   // 中等字體 - 可調整為 24-40
+  int smallFontSize = 16;    // 小字體 - 可調整為 12-20
+  int tinyFontSize = 12;     // 極小字體 - 可調整為 8-16
 
   // ==================== UI 位置設定 ====================
   // 修改建議：改變 UI 元素的位置和大小
-  int gameInfoX;            // 遊戲資訊 X 座標 - 由程式計算置中
-  int gameInfoY = 20;       // 遊戲資訊 Y 座標 - 可調整距離頂部的距離
-  int gameInfoW = 300;      // 遊戲資訊寬度 - 可調整資訊框大小
-  int gameInfoH = 80;       // 遊戲資訊高度 - 可調整資訊框大小
+  int gameInfoX;             // 遊戲資訊 X 座標 - 由程式計算置中
+  int gameInfoY = 20;        // 遊戲資訊 Y 座標 - 可調整距離頂部的距離
+  int gameInfoW = 300;       // 遊戲資訊寬度 - 可調整資訊框大小
+  int gameInfoH = 80;        // 遊戲資訊高度 - 可調整資訊框大小
 
-  int statusX;              // 玩家狀態 X 座標 - 由程式計算置中
-  int statusY = 120;        // 玩家狀態 Y 座標 - 可調整在遊戲資訊下方的距離
+  int statusX;               // 玩家狀態 X 座標 - 由程式計算置中
+  int statusY = 120;         // 玩家狀態 Y 座標 - 可調整在遊戲資訊下方的距離
 
-  int enemyCountX;          // 敵人數量 X 座標 - 由程式計算右對齊
-  int enemyCountY = 20;     // 敵人數量 Y 座標 - 可調整距離頂部的距離
-  int enemyCountW = 150;    // 敵人數量寬度 - 可調整資訊框大小
-  int enemyCountH = 60;     // 敵人數量高度 - 可調整資訊框大小
+  int enemyCountX;           // 敵人數量 X 座標 - 由程式計算右對齊
+  int enemyCountY = 20;      // 敵人數量 Y 座標 - 可調整距離頂部的距離
+  int enemyCountW = 150;     // 敵人數量寬度 - 可調整資訊框大小
+  int enemyCountH = 60;      // 敵人數量高度 - 可調整資訊框大小
 
   // ==================== 建構函數 - 初始化設定 ====================
   UI() {
@@ -58,13 +58,15 @@ class UI {
         notoFont = createFont("data/NotoSans-ExtraBold.otf", 32);
       }
       if (notoFont == null) {
-        // 最後備用 - 系統內建字體
-        notoFont = createFont("NotoSans-ExtraBold", 32);
+        // 最後備用 - 系統內建字體，改為更通用的字體以避免報錯
+        notoFont = createFont("Arial", 32);
+        println("Warning: Custom font 'NotoSans-ExtraBold' not found, using Arial as fallback.");
       }
     }
     catch (Exception e) {
       // 字體載入失敗時的處理
       notoFont = null; // 使用系統預設字體
+      println("Error loading font: " + e.getMessage() + ". Using default system font.");
     }
   }
 
@@ -74,7 +76,7 @@ class UI {
     if (notoFont != null) {
       textFont(notoFont, size); // 使用自訂字體
     } else {
-      textSize(size);           // 使用系統預設字體
+      textSize(size);            // 使用系統預設字體
     }
   }
 
@@ -82,8 +84,8 @@ class UI {
   // 修改建議：可添加動畫效果、按鈕懸浮效果等
   void showHomeMenu(PImage titleImage, PImage backgroundImage) {
     showBackground(backgroundImage);  // 顯示背景 - 可添加動畫背景
-    showTitle(titleImage);           // 顯示標題 - 可添加淡入效果
-    showMenuOptions();               // 顯示選項 - 可添加按鈕懸浮效果
+    showTitle(titleImage);            // 顯示標題 - 可添加淡入效果
+    showMenuOptions();                // 顯示選項 - 可添加按鈕懸浮效果
   }
 
   // ==================== 背景顯示 ====================
@@ -128,90 +130,43 @@ class UI {
   // 修改建議：可改為垂直排列、添加按鈕框、懸浮效果等
   void showMenuOptions() {
     textAlign(CENTER, CENTER);
-    
-    // ==================== 規則說明區域 ====================
-    // 將規則說明向下移動，避免與標題重疊
-    int centerY = height/2 + 10;
-    
-    /*// 說明區背景框 - 增加可讀性和視覺凸顯
-    rectMode(CENTER);
-    fill(0, 150); // 半透明黑色背景
-    noStroke();
-    // 繪製主要說明背景圓角矩形
-    rect(width/2, centerY + 30, 740, 120, 15);*/
-    
-    // 標題 - 視覺增強
-    fill(255, 255, 150); // 淺黃色標題
-    setFont(26); // 較大字體
-    text("GAME RULES", width/2, centerY - 20);
-    
-    // 說明文字陰影
-    fill(0, 200);
-    setFont(18);
-    text("Each level lasts 60 seconds - Complete all 3 levels to win!", width/2 + 1, centerY + 1);
-    text("Use WASD or Arrow Keys to move", width/2 + 1, centerY + 30 + 1);
-    text("Avoid enemies and collect power-ups", width/2 + 1, centerY + 60 + 1);
-    
-    // 說明文字主體 - 白色文字
-    fill(255);
-    text("Each level lasts 60 seconds - Complete all 3 levels to win!", width/2, centerY);
-    text("Use WASD or Arrow Keys to move", width/2, centerY + 30);
-    text("Avoid enemies and collect power-ups", width/2, centerY + 60);
-    
-    // ==================== 關卡選擇區域 ====================
-    // 在畫面下方顯示關卡選擇指示
-    int levelY = height - 130; // 在畫面下方，但不太靠近底部
-    
-    // 關卡選擇背景
-    fill(0, 170);
-    rect(width/2, levelY + 30, 760, 100, 15);
-    
-    // 關卡選擇標題
+
+    // ==================== 關卡選擇區域 (UNCHANGED on Home Screen) ====================
+    int levelY = height - 130;
+
+    // 關卡選擇標題 - 改為 "Choose a level"
     fill(255, 220, 150);
     setFont(26);
-    text("SELECT A LEVEL", width/2, levelY - 20);
-    
+    text("Choose a level", width/2, levelY - 20);
+
     // 設置三個關卡的水平位置
-    int[] levelX = {width/2 - 250, width/2, width/2 + 250}; // 三個水平位置
+    int[] levelX = {width/2 - 350, width/2, width/2 + 350};
     String[] levelNames = {"Level 1", "Level 2", "Level 3"};
-    String[] keyNames = {"Press 1", "Press 2", "Press 3"};
-    String[] difficultyTexts = {"Beginner", "Intermediate", "Advanced"};
-    
+
     // 繪製三個關卡選項 - 只使用文字，不是按鈕
     for (int i = 0; i < 3; i++) {
-      // 關鍵按鍵提示
-      fill(255, 255, 200);
-      setFont(24);
-      text(keyNames[i], levelX[i], levelY);
-      
-      // 關卡名稱
       fill(255);
-      setFont(20);
+      setFont(26);
       text(levelNames[i], levelX[i], levelY + 30);
-      
-      // 難度說明
-      fill(200, 200, 255);
-      setFont(16);
-      text(difficultyTexts[i], levelX[i], levelY + 60);
     }
-    
+
     // 底部提示文字
-    fill(150, 255, 150, 180);
-    setFont(14);
-    text("Press the number key to start a level", width/2, height - 30);
+    fill(255);
+    setFont(20);
+    text("Press the number key to start a level", width/2, levelY + 80);
   }
 
   // ==================== 載入畫面 ====================
   void showLoadingScreen(PImage titleImage, PImage backgroundImage, int loadingStartTime) {
     // 顯示背景
     showBackground(backgroundImage);
-    
+
     // ==================== 進度計算 ====================
     int elapsedTime = millis() - loadingStartTime;
     // 進度條載到100%的總時間縮短為4秒
     final int TOTAL_LOAD_TIME = 4000; // 縮短為4秒
     float progress = constrain((float)elapsedTime / TOTAL_LOAD_TIME, 0.0, 1.0);
-    
+
     // ==================== 載入頁面標題 ====================
     if (titleImage != null) {
       imageMode(CENTER);
@@ -221,45 +176,45 @@ class UI {
     } else {
       // 備用文字標題
       textAlign(CENTER, CENTER);
-      
+
       // 標題淡入效果
       float titleAlpha = map(progress, 0.0, 1.0, 50, 255);
-      
+
       // 陰影
       fill(0, titleAlpha * 0.6);
       setFont(72);
       text("CARROT DASH", width / 2 + 3, height / 2 - 97);
-      
+
       // 主標題
       fill(255, 140, 0, titleAlpha);
       text("CARROT DASH", width / 2, height / 2 - 100);
     }
-    
+
     // ==================== 長條形進度條設定 ====================
     // 進度條位置與標題增加間距
-    int barWidth = 400;       // 進度條寬度
-    int barHeight = 30;       // 進度條高度
-    int cornerRadius = 15;    // 圓角半徑
-    
+    int barWidth = 400;        // 進度條寬度
+    int barHeight = 30;        // 進度條高度
+    int cornerRadius = 15;     // 圓角半徑
+
     // 進度條位置
     int barX = (width - barWidth) / 2;
     int barY = height- 150;  // 與標題增加間距
-   
+
     // 繪製進度條外框
     noFill();
     stroke(255, 150);
     strokeWeight(2);
     rect(barX, barY, barWidth, barHeight, cornerRadius);
-    
+
     // ==================== 進度條填充 ====================
     noStroke();
-    
+
     // 載入填滿為橘色
     fill(255, 140, 0); // 橘色填充
-    
+
     // 計算填充寬度（需要考慮圓角）
     int fillWidth = int(barWidth * progress);
-    
+
     // 繪製進度填充（帶圓角）
     if (fillWidth > 0) {
       // 如果進度小於整個條寬，使用左邊圓角
@@ -277,48 +232,48 @@ class UI {
   void showGameUI(int survivalTime, int level, Player player, int enemyCount) {
     showGameInfo(survivalTime, level);    // 顯示關卡和時間資訊
     showPlayerStatus(player);             // 顯示玩家狀態效果
-    showEnemyCount(enemyCount);          // 顯示敵人數量
+    showEnemyCount(enemyCount);           // 顯示敵人數量
   }
 
   // ==================== 遊戲資訊顯示 ====================
   // 修改建議：可添加分數、生命值、道具數量等資訊
   void showGameInfo(int timeRemaining, int level) {
     textAlign(CENTER, TOP);
-    
+
     // 計算剩餘秒數
     int secondsRemaining = max(0, timeRemaining / 1000);
-    
+
     // ==================== 時間顏色動態變化 ====================
     // 可修改時間警告的顏色和觸發時間
     color timeColor = textColor;
     if (secondsRemaining <= 10) {
-      timeColor = dangerColor;              // 最後10秒紅色警告
+      timeColor = dangerColor;             // 最後10秒紅色警告
     } else if (secondsRemaining <= 20) {
-      timeColor = highlightColor;           // 最後20秒黃色警告
+      timeColor = highlightColor;          // 最後20秒黃色警告
     } else if (secondsRemaining <= 30) {
-      timeColor = color(255, 200, 0);       // 最後30秒橙色警告
+      timeColor = color(255, 200, 0);      // 最後30秒橙色警告
     }
-    
+
     // ==================== 關卡資訊顯示 ====================
     // 關卡資訊陰影
     fill(0, 150);
     setFont(largeFontSize); // 可調整關卡文字大小
     text("Level " + level, width/2 + 2, gameInfoY + 2);
-    
+
     // 時間資訊陰影
     setFont(36); // 可調整時間文字大小
     text("Time: " + secondsRemaining + "s", width/2 + 2, gameInfoY + 52);
-    
+
     // 關卡資訊主體
     fill(textColor); // 可修改關卡文字顏色
     setFont(largeFontSize);
     text("Level " + level, width/2, gameInfoY);
-    
+
     // 時間資訊主體（動態顏色）
     fill(timeColor);
     setFont(36);
     text("Time: " + secondsRemaining + "s", width/2, gameInfoY + 50);
-    
+
     // ==================== 加速狀態指示 ====================
     // 可修改加速狀態的顯示樣式和觸發條件
     if (secondsRemaining <= 30 && secondsRemaining > 0) {
@@ -326,7 +281,7 @@ class UI {
       fill(0, 150);
       setFont(smallFontSize);
       text("SPEED BOOST ACTIVE", width/2 + 1, gameInfoY + 91);
-      
+
       // 加速提示主體
       fill(highlightColor); // 可修改加速提示顏色
       text("SPEED BOOST ACTIVE", width/2, gameInfoY + 90);
@@ -395,25 +350,25 @@ class UI {
   void showSpeedUpMessage(boolean isSpeedingUp, int speedUpStartTime) {
     if (isSpeedingUp) {
       int elapsedTime = millis() - speedUpStartTime;
-      
+
       // 顯示時間設定 - 可修改顯示持續時間
       if (elapsedTime <= 3000) { // 3秒顯示時間
         // 閃爍效果 - 可修改閃爍頻率
         boolean shouldShow = (elapsedTime / 500) % 2 == 0; // 每500毫秒切換
-        
+
         if (shouldShow) {
           textAlign(CENTER, CENTER);
-          
+
           // ==================== 主要加速訊息 ====================
           // 陰影效果
           fill(0, 200);
           setFont(largeFontSize + 12); // 可調整文字大小
           text("SPEEDING UP!", width/2 + 3, height/2 + 3);
-          
+
           // 主要文字 - 可修改顏色和文字內容
           fill(255, 255, 0, 255); // 純黃色
           text("SPEEDING UP!", width/2, height/2);
-          
+
           // ==================== 副標題訊息 ====================
           setFont(mediumFontSize);
           fill(255, 255, 100, 200); // 可修改副標題顏色
@@ -436,7 +391,7 @@ class UI {
     fill(0, 200);
     setFont(largeFontSize); // 可調整結果文字大小
     text(message, width/2 + 3, height/2 - 37); // message 可為 "YOU WIN!" 或 "YOU LOST!"
-    
+
     // 重新開始提示陰影
     setFont(24);
     text("Press R to restart", width/2 + 2, height/2 + 22);
@@ -445,7 +400,7 @@ class UI {
     fill(textColor); // 可修改結果文字顏色
     setFont(largeFontSize);
     text(message, width/2, height/2 - 40);
-    
+
     // 重新開始提示主體
     setFont(24);
     text("Press R to restart", width/2, height/2 + 20); // 可修改重新開始提示文字
@@ -462,7 +417,7 @@ class UI {
       // 除錯資訊位置 - 可修改顯示位置
       int debugX = width - 290;    // 距離右邊290像素
       int debugY = height - 190;   // 距離底部190像素
-      int lineHeight = 15;         // 行高
+      int lineHeight = 15;          // 行高
 
       // ==================== 除錯資訊陰影 ====================
       fill(0, 150);
@@ -524,7 +479,7 @@ class UI {
     // 只有按下 'h' 鍵時才顯示 - 可修改觸發鍵
     if (keyPressed && key == 'h') {
       textAlign(CENTER, TOP);
-      int lineHeight = 20;         // 行高 - 可調整
+      int lineHeight = 20;          // 行高 - 可調整
       int helpY = height/2 - 100;  // 起始 Y 座標
 
       // ==================== 控制說明標題 ====================
@@ -587,5 +542,123 @@ class UI {
     gameInfoX = (width - gameInfoW) / 2;  // 重新計算遊戲資訊置中位置
     statusX = width / 2;                  // 重新計算狀態資訊置中位置
     enemyCountX = width - 170;            // 重新計算敵人數量右對齊位置
+  }
+
+  // ==================== 關卡準備頁面顯示 ====================
+  // 修改建議：可添加關卡預覽圖、難度說明、最佳成績等
+  void showLevelPrepScreen(int selectedLevel, PImage backgroundImage) {
+    // 顯示背景
+    showBackground(backgroundImage);
+
+    textAlign(CENTER, CENTER);
+
+    // ==================== 關卡標題區域 ====================
+    int titleY = height / 4;
+
+    // 關卡標題（無背景框）
+    fill(255, 220, 100);
+    setFont(36);
+    text("LEVEL " + selectedLevel + " GAME RULES", width / 2, titleY);
+
+    // ==================== 關卡資訊區域 (NEW: Game Rules Moved Here) ====================
+    int infoY = height / 2 - 100; // Adjusted starting Y for the new content
+
+    // Game Rules Body
+    fill(255);
+    setFont(18);
+    text("Each level lasts 60 seconds", width/2, infoY );
+    text("Avoid enemies and collect power-ups", width/2, infoY + 30);
+
+    text("Use WASD or Arrow Keys to move", width/2, infoY + 200);
+    text("Complete all 3 levels to win", width/2, infoY+230 );
+
+    // ==================== 關卡敵人與物品資訊 ====================
+    int enemyItemInfoY = infoY + 80; // Start below game rules
+
+    fill(255, 255, 150);
+    setFont(22);
+    text("CHALLENGES", width/2, enemyItemInfoY);
+
+    String enemyTypesStr = "Enemies: ";
+    String itemTypesStr = "Items: ";
+
+    // Determine enemy types based on level
+    if (selectedLevel == 1) {
+      enemyTypesStr += "Pest";
+      itemTypesStr += "None"; // Explicitly none for Level 1
+    } else if (selectedLevel == 2) {
+      enemyTypesStr += "Pest, Bird";
+      itemTypesStr += "None"; // Explicitly none for Level 2
+    } else if (selectedLevel == 3) {
+      enemyTypesStr += "Pest, Bird";
+      itemTypesStr += "Flip, Star"; // Items only appear in Level 3
+    } else {
+      enemyTypesStr += "Unknown"; // Fallback
+      itemTypesStr += "None";     // Fallback
+    }
+
+    fill(255);
+    setFont(18);
+    text(enemyTypesStr + " | " + itemTypesStr, width/2, enemyItemInfoY + 40);
+
+
+int buttonRowCenterY = height - 120; // 按鈕行的垂直中心
+
+    int buttonWidth = 200;  // 統一按鈕寬度
+    int buttonHeight = 60;  // 統一按鈕高度
+    int horizontalSpacing = 60; // 按鈕之間的水平間距
+
+    // 計算兩個按鈕的總寬度
+    int totalButtonsWidth = (buttonWidth * 2) + horizontalSpacing;
+    
+    // 計算起始按鈕的 X 座標（左側按鈕）
+    int startButtonX = (width / 2) - (totalButtonsWidth / 2) + (buttonWidth / 2);
+    // 計算返回按鈕的 X 座標（右側按鈕）
+    int backButtonX = (width / 2) + (totalButtonsWidth / 2) - (buttonWidth / 2);
+
+    // START LEVEL Button
+    // 判斷滑鼠是否在按鈕區域，但不再影響填色
+    boolean isHoverStart = mouseX >= startButtonX - buttonWidth / 2 && mouseX <= startButtonX + buttonWidth / 2 &&
+                           mouseY >= buttonRowCenterY - buttonHeight / 2 && mouseY <= buttonRowCenterY + buttonHeight / 2;
+
+    rectMode(CENTER);
+    noStroke(); // 移除框線
+    noFill();   // 移除填色背景
+
+    // START button text
+    // 懸停時文字顏色變淺黃，否則為白色
+    if (isHoverStart) {
+      fill(255, 220, 100); 
+    } else {
+      fill(255); 
+    }
+    setFont(24);
+    text("START LEVEL", startButtonX, buttonRowCenterY); // 主文字垂直置中
+
+    // START button hint text (below its button)
+    fill(25); // 提示文字顏色
+    setFont(14);
+    text("(press SPACE)", startButtonX, buttonRowCenterY + (buttonHeight / 2) + 5); // 提示文字在按鈕下方留白
+
+    // BACK TO MENU Button
+    // 判斷滑鼠是否在按鈕區域，但不再影響填色
+    boolean isHoverBack = mouseX >= backButtonX - buttonWidth / 2 && mouseX <= backButtonX + buttonWidth / 2 &&
+                          mouseY >= buttonRowCenterY - buttonHeight / 2 && mouseY <= buttonRowCenterY + buttonHeight / 2;
+
+    noStroke(); // 移除框線
+    noFill();   // 移除填色背景
+
+    if (isHoverBack) {
+      fill(255, 220, 100); 
+    } else {
+      fill(255); 
+    }
+    setFont(24); // 與 START LEVEL 文字大小一致
+    text("Back to Menu", backButtonX, buttonRowCenterY); // 主文字垂直置中
+
+    // BACK button hint text (below its button)
+    fill(255); // 提示文字顏色
+    setFont(14); // 與 START LEVEL 提示文字大小一致
+    text("(press ESC)", backButtonX, buttonRowCenterY + (buttonHeight / 2) + 5); // 提示文字在按鈕下方留白
   }
 }
