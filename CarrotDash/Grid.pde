@@ -83,7 +83,7 @@ class Grid {
       image(gridImage, playableOriginX, playableOriginY, playableGridWidth, playableGridHeight);
       
       // Debug: show grid row-column labels (only when debug key is pressed)
-      if (keyPressed && key == 'd') {
+      if (keyPressed && key == 't') {
         showDebugGrid();
       }
       

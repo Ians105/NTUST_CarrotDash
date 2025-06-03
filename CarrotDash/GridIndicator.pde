@@ -89,7 +89,7 @@ class GridIndicator {
       popMatrix();
       
       // Debug: show grid position
-      if (keyPressed && key == 'd') {
+      if (keyPressed && key == 't') {
         fill(255, 255, 0);
         textAlign(CENTER, CENTER);
         textSize(12);

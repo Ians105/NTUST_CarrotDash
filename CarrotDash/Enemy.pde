@@ -286,7 +286,7 @@ class Enemy {
     popMatrix();
     
     // Debug: show enemy position and speed status
-    if (keyPressed && key == 'd') {
+    if (keyPressed && key == 't') {
       fill(255, 255, 0);
       textAlign(CENTER, CENTER);
       textSize(10);

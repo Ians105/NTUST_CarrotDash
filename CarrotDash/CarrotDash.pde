@@ -198,11 +198,7 @@ void draw() {
         String[] itemTypes;
         
         // Define item types based on level
-        if (level == 1) {
-          itemTypes = new String[]{}; 
-        } else if (level == 2) {
-          itemTypes = new String[]{};
-        } else if (level == 3) {
+        if (level == 3) {
           itemTypes = new String[]{"flip", "star"}; 
         } else {
           itemTypes = new String[]{};

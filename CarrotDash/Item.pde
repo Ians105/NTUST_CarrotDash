@@ -162,8 +162,8 @@ class Item {
       }
       popMatrix();
       
-      // Debug: show grid position (when 'd' key pressed)
-      if (keyPressed && key == 'd') {
+      // Debug: show grid position (when 't' key pressed)
+      if (keyPressed && key == 't') {
         fill(255);
         textAlign(CENTER, CENTER);
         textSize(12);
