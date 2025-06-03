@@ -122,7 +122,7 @@ void draw() {
       if (level == 2 || level == 3) {
         enemyTypes.add("bird");
       }
-      
+
       String randomType = enemyTypes.get((int)random(enemyTypes.size()));
 
       // Level 1 特殊生成邏輯：按您的要求修改
@@ -130,36 +130,20 @@ void draw() {
 
       if (level == 1) {
         // Level 1: 更隨機的生成位置和方向
+        boolean fromLeft = random(1) < 0.5;
 
-        // Level 1 額外隨機性：10% 機率從上下生成
-        if (random(1) < 0.1) {
-          boolean fromTop = random(1) < 0.5;
-          if (fromTop) {
-            // 從上方生成
-            spawnX = grid.originX + random(0, grid.cols) * grid.cellSize;
-            spawnY = grid.originY - random(2, 3) * grid.cellSize; // 2-3格距離
-          } else {
-            // 從下方生成
-            spawnX = grid.originX + random(0, grid.cols) * grid.cellSize;
-            spawnY = grid.originY + (grid.playableRows + random(2, 3)) * grid.cellSize; // 2-3格距離
-          }
+        if (fromLeft) {
+          // 從左側生成：2-3格距離
+          spawnX = grid.originX - random(2, 3) * grid.cellSize; // 修改：2-3格距離
+          // 垂直位置：只在可玩區域內，不包含邊界
+          int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
+          spawnY = grid.originY + randomRow * grid.cellSize;
         } else {
-          // 90% 機率從左右生成
-          boolean fromLeft = random(1) < 0.5;
-
-          if (fromLeft) {
-            // 從左側生成：2-3格距離
-            spawnX = grid.originX - random(2, 3) * grid.cellSize; // 修改：2-3格距離
-            // 垂直位置：只在可玩區域內，不包含邊界
-            int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
-            spawnY = grid.originY + randomRow * grid.cellSize;
-          } else {
-            // 從右側生成：2-3格距離
-            spawnX = grid.originX + (grid.cols + random(2, 3)) * grid.cellSize; // 修改：2-3格距離
-            // 垂直位置：只在可玩區域內，不包含邊界
-            int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
-            spawnY = grid.originY + randomRow * grid.cellSize;
-          }
+          // 從右側生成：2-3格距離
+          spawnX = grid.originX + (grid.cols + random(2, 3)) * grid.cellSize; // 修改：2-3格距離
+          // 垂直位置：只在可玩區域內，不包含邊界
+          int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
+          spawnY = grid.originY + randomRow * grid.cellSize;
         }
       } else {
         // Level 2+ 保持原來的邏輯
