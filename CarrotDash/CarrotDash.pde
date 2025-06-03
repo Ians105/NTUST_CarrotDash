@@ -85,8 +85,7 @@ void draw() {
     // 檢查載入是否完成
     if (millis() - loadingStartTime >= LOADING_DURATION) {
       gameState = GAME_HOME;
-
-      // 載入完成後初始化遊戲資源
+      
       grid = new Grid();
       p = new Player();
 
@@ -208,8 +207,8 @@ void draw() {
       lastItemSpawnTime = millis();
     }
 
-    // Show player (remove p.update() call)
-    if (p != null) p.show();
+    // Show player
+    p.show();
 
     // Update enemies
     for (int i = enemies.size() - 1; i >= 0; i--) {
@@ -412,19 +411,14 @@ void startGame() {
   lastItemSpawnTime = millis();
   currentLevelStartTime = millis(); // 記錄當前關卡開始時間
 
-  // Set enemy spawn interval based on level - 按您的要求調整
+  // Set enemy and spawn interval based on level
   enemySpawnInterval = 4000;
+  itemSpawnInterval  = 999999;
   if (level == 2) {
     enemySpawnInterval -=500;
   } else if (level == 3) {
     enemySpawnInterval -=1000;
-  }
-
-  // Set item spawn interval (only relevant for level 3+)
-  if (level >= 3) {
     itemSpawnInterval = 6000;
-  } else {
-    itemSpawnInterval = 999999;
   }
 
   println("Level " + level + " configuration:");
