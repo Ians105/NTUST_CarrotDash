@@ -37,7 +37,7 @@ class Player {
       int absoluteRow = centerRow + 1;  // +1 because border occupies row 0
       int absoluteCol = centerCol + 1;  // +1 because border occupies column 0
       
-      // Calculate pixel position - 置中到格子中心
+      // Calculate pixel position - center in grid cell
       x = grid.originX + absoluteCol * grid.cellSize + (grid.cellSize - w) / 2;
       y = grid.originY + absoluteRow * grid.cellSize + (grid.cellSize - h) / 2;
       
@@ -73,7 +73,7 @@ class Player {
     absoluteGridCol = playableGridCol + 1;
     absoluteGridRow = playableGridRow + 1;
     
-    // Set pixel position - 置中到格子中心
+    // Set pixel position - center in grid cell
     x = grid.originX + absoluteGridCol * grid.cellSize + (grid.cellSize - w) / 2;
     y = grid.originY + absoluteGridRow * grid.cellSize + (grid.cellSize - h) / 2;
   }
@@ -134,7 +134,7 @@ class Player {
       return;
     }
 
-    // 檢查是否為重複方向移動
+    // Check if this is a repeated move in the same direction
     boolean isRepeatedMove = direction.equals(lastMoveDirection) && currentTime - lastMoveTime > moveBuffer;
 
     if (showGridIndicator) {
@@ -197,14 +197,14 @@ class Player {
       }
       
       if (!hasActiveGopher) {
-        // Calculate new pixel position - 置中到格子中心
+        // Calculate new pixel position - center in grid cell
         float newX = grid.originX + newAbsoluteGridCol * grid.cellSize + (grid.cellSize - w) / 2;
         float newY = grid.originY + newAbsoluteGridRow * grid.cellSize + (grid.cellSize - h) / 2;
         
         x = newX;
         y = newY;
         
-        // 如果是重複方向移動，在下一格生成 gopher
+        // If this is a repeated move in the same direction, spawn gopher at next position
         if (isRepeatedMove) {
           spawnGopherAtNextPosition(actualDirection, newAbsoluteGridRow, newAbsoluteGridCol);
         }
@@ -221,12 +221,12 @@ class Player {
     }
   }
   
-  // 新增：在下一格位置生成 gopher
+  // New method: spawn gopher at next position
   void spawnGopherAtNextPosition(String direction, int currentRow, int currentCol) {
     int gopherRow = currentRow;
     int gopherCol = currentCol;
     
-    // 計算 gopher 應該出現的位置（玩家移動方向的下一格）
+    // Calculate where the gopher should appear (next cell in player's movement direction)
     if (direction.equals("UP")) {
       gopherRow--;
     } else if (direction.equals("RIGHT")) {
@@ -237,14 +237,14 @@ class Player {
       gopherCol--;
     }
     
-    // 檢查 gopher 位置是否在可玩區域內
+    // Check if gopher position is within playable area
     int gopherPlayableRow = gopherRow - 1;
     int gopherPlayableCol = gopherCol - 1;
     
     if (gopherPlayableRow >= 0 && gopherPlayableRow < grid.playableRows && 
         gopherPlayableCol >= 0 && gopherPlayableCol < grid.playableCols) {
       
-      // 尋找現有的 gopher 或創建新的
+      // Find existing gopher or create new one
       GridIndicator targetGopher = null;
       for (GridIndicator indicator : gridIndicators) {
         if (indicator.isAtPosition(gopherRow, gopherCol)) {
@@ -253,13 +253,13 @@ class Player {
         }
       }
       
-      // 如果沒有現有的 gopher，創建新的
+      // If no existing gopher, create new one
       if (targetGopher == null) {
         targetGopher = new GridIndicator(gopherRow, gopherCol);
         gridIndicators.add(targetGopher);
       }
       
-      // 激活 gopher
+      // Activate gopher
       targetGopher.activate();
       println("Gopher spawned at next position (" + gopherRow + ", " + gopherCol + ") due to repeated move");
     } else {

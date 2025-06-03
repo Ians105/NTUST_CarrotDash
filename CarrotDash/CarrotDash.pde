@@ -1,7 +1,7 @@
 // Game modes
 final int GAME_LOADING = 0;
 final int GAME_HOME = 1;
-final int GAME_LEVEL_PREP = 2;  // 新增：關卡準備頁面
+final int GAME_LEVEL_PREP = 2;  // New: Level preparation page
 final int GAME_PLAYING = 3;
 final int GAME_WIN = 4;
 final int GAME_LOSE = 5;
@@ -35,7 +35,7 @@ Grid grid;
 int gameState = GAME_HOME;
 int gameStartTime = 0;
 int level = 1; // Set default value
-int selectedLevel = 1; // 新增：記錄選擇的關卡
+int selectedLevel = 1; // New: Record selected level
 
 // Background and UI Images
 PImage titleImage;
@@ -47,28 +47,28 @@ ArrayList<GridIndicator> gridIndicators = new ArrayList<GridIndicator>();
 // UI Manager
 UI ui;
 
-int levelDuration = 60000; // 每關60秒
+int levelDuration = 60000; // 60 seconds per level
 int currentLevelStartTime = 0;
 
-// 在全域變數區域添加
+// Add to global variables section
 boolean isSpeedingUp = false;
 int speedUpStartTime = 0;
 boolean speedUpMessageShown = false;
 
-// 載入相關變數
+// Loading related variables
 int loadingStartTime = 0;
-final int LOADING_DURATION = 4000; // 修改為4秒載入時間
+final int LOADING_DURATION = 4000; // Modified to 4 seconds loading time
 
 void setup() {
   size(1280, 720);
 
-  // 先初始化 UI
+  // Initialize UI first
   ui = new UI();
 
-  // 載入圖片資源（在載入頁面之前）
+  // Load image resources (before loading page)
   loadSprites();
 
-  // 開始載入頁面
+  // Start loading page
   gameState = GAME_LOADING;
   loadingStartTime = millis();
 
@@ -79,14 +79,14 @@ void setup() {
 void draw() {
   switch(gameState) {
   case GAME_LOADING:
-    // 顯示載入畫面（使用已載入的圖片）
+    // Show loading screen (using loaded images)
     ui.showLoadingScreen(titleImage, backgroundImage, loadingStartTime);
 
-    // 檢查載入是否完成
+    // Check if loading is complete
     if (millis() - loadingStartTime >= LOADING_DURATION) {
       gameState = GAME_HOME;
 
-      // 載入完成後初始化遊戲資源
+      // Initialize game resources after loading complete
       grid = new Grid();
       p = new Player();
 
@@ -95,7 +95,7 @@ void draw() {
     break;
 
   case GAME_HOME:
-    // 載入完成後才顯示主選單
+    // Show main menu only after loading complete
     ui.showHomeMenu(titleImage, backgroundImage);
     break;
 
@@ -114,7 +114,7 @@ void draw() {
 
     grid.show();
 
-    // Spawn enemies every interval - Level 1 特別優化
+    // Spawn enemies every interval - Level 1 special optimization
     if (millis() - lastEnemySpawnTime > enemySpawnInterval) {
       ArrayList<String> enemyTypes = new ArrayList<String>();
       enemyTypes.add("pest");
@@ -125,28 +125,28 @@ void draw() {
 
       String randomType = enemyTypes.get((int)random(enemyTypes.size()));
 
-      // Level 1 特殊生成邏輯：按您的要求修改
+      // Level 1 special spawn logic: modified as requested
       float spawnX, spawnY;
 
       if (level == 1) {
-        // Level 1: 更隨機的生成位置和方向
+        // Level 1: More random spawn positions and directions
         boolean fromLeft = random(1) < 0.5;
 
         if (fromLeft) {
-          // 從左側生成：2-3格距離
-          spawnX = grid.originX - random(2, 3) * grid.cellSize; // 修改：2-3格距離
-          // 垂直位置：只在可玩區域內，不包含邊界
-          int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
+          // Spawn from left: 2-3 grid distance
+          spawnX = grid.originX - random(2, 3) * grid.cellSize; // Modified: 2-3 grid distance
+          // Vertical position: only within playable area, excluding borders
+          int randomRow = (int)random(1, grid.playableRows + 1); // Modified: excluding borders
           spawnY = grid.originY + randomRow * grid.cellSize;
         } else {
-          // 從右側生成：2-3格距離
-          spawnX = grid.originX + (grid.cols + random(2, 3)) * grid.cellSize; // 修改：2-3格距離
-          // 垂直位置：只在可玩區域內，不包含邊界
-          int randomRow = (int)random(1, grid.playableRows + 1); // 修改：不包含邊界
+          // Spawn from right: 2-3 grid distance
+          spawnX = grid.originX + (grid.cols + random(2, 3)) * grid.cellSize; // Modified: 2-3 grid distance
+          // Vertical position: only within playable area, excluding borders
+          int randomRow = (int)random(1, grid.playableRows + 1); // Modified: excluding borders
           spawnY = grid.originY + randomRow * grid.cellSize;
         }
       } else {
-        // Level 2+ 保持原來的邏輯
+        // Level 2+ keep original logic
         boolean fromLeft = random(1) < 0.5;
 
         if (fromLeft) {
@@ -165,11 +165,11 @@ void draw() {
 
       println("Spawned " + randomType + " at (" + (int)spawnX + ", " + (int)spawnY + ")");
 
-      // Level 1 額外機制：30% 機率連續生成
+      // Level 1 extra mechanism: 30% chance for consecutive spawn
       if (level == 1 && random(1) < 0.3) {
-        // 0.5-1.5秒後再生成一個
+        // Spawn another one after 0.5-1.5 seconds
         int extraDelay = (int)random(500, 1500);
-        // 記錄額外生成時間
+        // Record extra spawn time
         lastEnemySpawnTime = millis() - enemySpawnInterval + extraDelay;
         println("Level 1 bonus spawn scheduled in " + extraDelay + "ms");
       }
@@ -275,16 +275,16 @@ void draw() {
       }
     }
 
-    // Check survival time - 使用當前關卡時間
+    // Check survival time - use current level time
     int currentLevelTime = millis() - currentLevelStartTime;
     int timeRemaining = levelDuration - currentLevelTime;
 
-    // 全關卡加速機制：剩餘30秒時啟動
+    // All levels speed up mechanism: activate when 30 seconds remaining
     boolean shouldSpeedUp = false;
-    if (timeRemaining <= 30000 && timeRemaining > 0) { // 剩餘30秒或更少，但不為負數
+    if (timeRemaining <= 30000 && timeRemaining > 0) { // 30 seconds or less remaining, but not negative
       shouldSpeedUp = true;
 
-      // 第一次觸發加速時記錄時間和顯示訊息
+      // Record time and show message when first triggering speed up
       if (!isSpeedingUp) {
         isSpeedingUp = true;
         speedUpStartTime = millis();
@@ -292,7 +292,7 @@ void draw() {
         println("SPEED UP ACTIVATED for Level " + level + "! Time remaining: " + (timeRemaining/1000) + "s");
       }
     } else {
-      // 重置加速狀態（用於下一關）
+      // Reset speed up state (for next level)
       if (isSpeedingUp) {
         isSpeedingUp = false;
         speedUpMessageShown = false;
@@ -300,28 +300,28 @@ void draw() {
       }
     }
 
-    // 通知所有敵人是否需要加速
+    // Notify all enemies whether speed up is needed
     for (Enemy enemy : enemies) {
       enemy.updateSpeedForAllLevels(shouldSpeedUp);
     }
 
     if (timeRemaining <= 0) {
-      // 當前關卡完成 - 重置加速狀態
+      // Current level completed - reset speed up state
       isSpeedingUp = false;
       speedUpMessageShown = false;
 
       if (level < 3) {
-        // 進入下一關
+        // Enter next level
         level++;
         println("Level " + (level-1) + " completed! Starting Level " + level);
-        startGame(); // 重新開始新關卡
+        startGame(); // Restart new level
       } else {
-        // 所有關卡完成
+        // All levels completed
         gameState = GAME_WIN;
       }
     }
 
-    // Use UI manager to show all UI elements - 移除敵人數量參數
+    // Use UI manager to show all UI elements - remove enemy count parameter
     ui.showGameUI(timeRemaining, level, p);
     ui.showSpeedUpMessage(isSpeedingUp, speedUpStartTime);
     ui.showDebugInfo(p, enemies, items, gridIndicators);
@@ -354,17 +354,17 @@ void keyPressed() {
   if (gameState == GAME_HOME) {
     if (key >= '1' && key <= '3') {
       selectedLevel = key - '0';
-      gameState = GAME_LEVEL_PREP; // 進入關卡準備頁面
+      gameState = GAME_LEVEL_PREP; // Enter level preparation page
     }
   } else if (gameState == GAME_LEVEL_PREP) {
     if (key == ' ') {
-      // 開始遊戲 - Fix: use startGame() instead of startLevel()
+      // Start game - Fix: use startGame() instead of startLevel()
       level = selectedLevel; // Set the level before starting
       startGame();
       gameState = GAME_PLAYING;
     } else if (key == ESC) {
-      gameState = GAME_HOME; // 返回主選單
-      key = 0; // 防止程式退出
+      gameState = GAME_HOME; // Return to main menu
+      key = 0; // Prevent program exit
     }
   }
 
@@ -382,7 +382,7 @@ void resetGame() {
   gridIndicators.clear();
   level = 1;
 
-  // 重置加速狀態
+  // Reset speed up state
   isSpeedingUp = false;
   speedUpMessageShown = false;
 
@@ -396,7 +396,7 @@ void startGame() {
   println("Starting game with level: " + level);
   gameState = GAME_PLAYING;
 
-  // 重置加速狀態
+  // Reset speed up state
   isSpeedingUp = false;
   speedUpMessageShown = false;
 
@@ -410,9 +410,9 @@ void startGame() {
 
   lastEnemySpawnTime = millis();
   lastItemSpawnTime = millis();
-  currentLevelStartTime = millis(); // 記錄當前關卡開始時間
+  currentLevelStartTime = millis(); // Record current level start time
 
-  // Set enemy spawn interval based on level - 按您的要求調整
+  // Set enemy spawn interval based on level - adjusted as requested
   enemySpawnInterval = 4000;
   if (level == 2) {
     enemySpawnInterval -=500;
@@ -482,7 +482,7 @@ void loadSprites() {
       playerSprites[i] = createImage(100, 100, RGB);
       playerSprites[i].loadPixels();
       for (int j = 0; j < playerSprites[i].pixels.length; j++) {
-        playerSprites[i].pixels[j] = color(255, 140, 0); // 橙色後備
+        playerSprites[i].pixels[j] = color(255, 140, 0); // Orange fallback
       }
       playerSprites[i].updatePixels();
     }
